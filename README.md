@@ -14,7 +14,7 @@
 4. On this open Browser page load Hack from Bookmarks.
 
 - Huawei Hack was tested on a Huawei B818 4G router, Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it - Advanced v1.0 by Riccardo Fanelli.
+- Base code v5.0 by miononno.it - Advanced v1.0.1 by Riccardo Fanelli.
 
 ---
 
@@ -30,7 +30,7 @@
 4. In questa pagina aperta del Browser caricare Hack dai Segnalibri.
 
 - Huawei Hack è stato testato su un router Huawei B818 4G, browser Firefox, Edge, Chrome.
-- Codice base v5.0 di miononno.it - evoluzione v1.0 di Riccardo Fanelli.
+- Codice base v5.0 di miononno.it - evoluzione v1.0.1 di Riccardo Fanelli.
 
 ---
 
@@ -117,7 +117,7 @@ function start()
 }
 function currentData()
 {
-	if(suspend==1)return;
+	if(suspend)return;
     try{document.getElementById("dhcp_mask").style.display="block",document.getElementById("dhcp_dns").style.display="block"}catch(e){}
 /*  HUAWEI VARIABLES & FUNCTION
     start()        Huawei->(indipendent)plmn,nrrsrp,rsrp,nrrssi,enodeb_id*/
@@ -205,11 +205,8 @@ function setEnodebMainbandBTS()
         if(b=="lte")/*LTE->"<band>3</band>"*/
             if(!isNaN(signval["band"]))signval[b+"main"]=bb+signval["band"];
         if(!signval[b+"main"]&&signval["band"].includes("("))/*LTE&NR->1st B&N of"<band>..(B3)..(N78)..</band>"*/
-        {
-            a=signval["band"].match(/(?:\()[^\(\)]*?(?:\))/g);
-            for (i=0;i<a.length;i++)
-                if((a[i].includes(bb))&&(/\d/).test(a[i])){signval[b+"main"]=bb+a[i].replace(/[^0-9]/g,"");break}
-        }
+            for(const a of signval["band"].match(/(?:\()[^\(\)]*?(?:\))/g))
+                if((a.includes(bb))&&(/\d/).test(a)){signval[b+"main"]=bb+a.replace(/[^0-9]/g,"");break}
         if(b=="nr"&&!signval[b+"main"])/*LTE&NR->UL of"<..earfcn>DL:.. UL:..</..earfcn>"*/
         {
             s=signval[b+"earfcn"].split("UL:")[1];
@@ -397,12 +394,12 @@ function barGraph()
 /*recmed*/  if(recstatus[b])if(recmedgra[p].unshift(recstatus[b]==1?true:false).length>boxcar)recmedgra[p].pop();
 /*graph*/   if(p!=notselsign[b])
             {
-                for(html='',l=currgra[p].length,x=0;x<l;x++)
+                for(h='',l=currgra[p].length,x=0;x<l;x++)
                 {
                     px=1+gt*x;
 /*current*/         a=currgra[p][x].split("|"),c=(a[0]-min)/(max-min);
                     d=c*100,co=a[1]=="a"?"blue":a[2]=="b"?"":a[2]=="c"?"green":"rgb("+5*Math.round(d<50?50:100-d)+" "+5*Math.round(d>50?50:d)+" 0)";
-                    html+='<line x1="'+px+'"y1="'+gh+'"x2="'+px+'"y2="'+(gh-c*gh-1)+'"stroke="'+co+'"stroke-width="'+gt+'"/>';
+                    h+='<line x1="'+px+'"y1="'+gh+'"x2="'+px+'"y2="'+(gh-c*gh-1)+'"stroke="'+co+'"stroke-width="'+gt+'"/>';
 /*curmed*/          if(!recstatus[b]&&curmaxcount[b])
                     {
                         for(me=0,i=x,ll=Math.min(x+curmaxcount[b],curmed[p].length);i<ll&&!curmed[p][i].split("|")[1];i++)
@@ -414,17 +411,17 @@ function barGraph()
                         { 
                             me=me/(i-x);if(me>max)me=max;if(me<min)me=min;
                             py=gh-(me-min)/(max-min)*gh;
-                            html+='<line x1="'+px+'"y1="'+(py-1)+'"x2="'+px+'"y2="'+py+'"stroke="black"stroke-width="'+gtm+'"/>';
+                            h+='<line x1="'+px+'"y1="'+(py-1)+'"x2="'+px+'"y2="'+py+'"stroke="black"stroke-width="'+gtm+'"/>';
                         }  
                     }
 /*recmed*/          if(recmedgra[p][x])
                     {
                         me=recmed[p];if(me>max)me=max;if(me<min)me=min;
                         py=gh-(me-min)/(max-min)*gh;
-                        html+='<line x1="'+px+'"y1="'+(py-1)+'"x2="'+px+'"y2="'+py+'"stroke="black"stroke-width="'+gtm+'"/>';
+                        h+='<line x1="'+px+'"y1="'+(py-1)+'"x2="'+px+'"y2="'+py+'"stroke="black"stroke-width="'+gtm+'"/>';
                     }
                 }
-                document.getElementById("b"+p).innerHTML='<svg version="1.1"viewBox="0 0 '+gw+' '+gh+'"width="'+gw+'"height="'+gh+'"preserveAspectRatio="xMaxYMax slice"style="border:1px solid #ccc;padding:1px;margin:-6px 0 -10px;width:'+gw+'px;">'+html+'</svg>';
+                document.getElementById("b"+p).innerHTML='<svg version="1.1"viewBox="0 0 '+gw+' '+gh+'"width="'+gw+'"height="'+gh+'"preserveAspectRatio="xMaxYMax slice"style="border:1px solid #ccc;padding:1px;margin:-6px 0 -10px;width:'+gw+'px;">'+h+'</svg>';
             }
         }
     }
@@ -597,10 +594,8 @@ function clickStorage(tipo,b)
         if(tipo=="rec")
         {
             d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short', timeStyle: 'short'});
-            rcp=(recpause[b]?"►.":"")+reccount[b];
             if(selsign[b]==b+"cqi0"){rmes=rmis=rmas="";rmec=ro(recmed[b+"cqi0"]);rmic=recmin[b+"cqi0"];rmac=recmax[b+"cqi0"]}else{rmec=rmic=rmac="";rmes=ro(recmed[b+"sign"]);rmis=ro(recmin[b+"sign"]);rmas=ro(recmax[b+"sign"])}
-            nr=[t,inf[0],b.toUpperCase(),recant,recenb[b],recband[b],rcp+"-"+(itime/1000),ro(recmed[b+"rsrp"]),recmax[b+"rsrp"],recmin[b+"rsrp"],ro(recmed[b+"sinr"]),recmax[b+"sinr"],recmin[b+"sinr"],ro(recmed[b+"rsrq"]),recmax[b+"rsrq"],recmin[b+"rsrq"],ro(recmed[b+"rssi"]),rmes,rmas,rmis,rmec,rmac,rmic,recneires[b]];
-            re3.push(nr);
+            re3.push([t,inf[0],b.toUpperCase(),recant,recenb[b],recband[b],recpause[b]+reccount[b]+"-"+(itime/1000),ro(recmed[b+"rsrp"]),recmax[b+"rsrp"],recmin[b+"rsrp"],ro(recmed[b+"sinr"]),recmax[b+"sinr"],recmin[b+"sinr"],ro(recmed[b+"rsrq"]),recmax[b+"rsrq"],recmin[b+"rsrq"],ro(recmed[b+"rssi"]),rmes,rmas,rmis,rmec,rmac,rmic,recneires[b]]);
         }
         if(tipo=="bts")
         {
@@ -703,7 +698,6 @@ function ftb()
 		margin:2px;
 		padding:2px;
 		border-radius:5px;
-		display:none;
 		text-align:center;
 		font-weight:bold;
 	}
@@ -853,5 +847,5 @@ var neighbor_cell={/*
 "458":["92722183","0362196","B20"],
 },nei,neisto;
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=window.setInterval(currentData,itime);
-tit("Che la banda sia con te! by Miononno &#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000);msg("Huawei Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.0 by Riccardo Fanelli"),msg("Type: netmode, signal, status, antennatype");
+tit("Che la banda sia con te! by Miononno &#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000);msg("Huawei Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.0.1 by Riccardo Fanelli"),msg("Type: netmode, signal, status, antennatype");
 ```
