@@ -79,28 +79,29 @@ function currentData()
 	if(suspend)return;
     try{document.getElementById("dhcp_mask").style.display="block",document.getElementById("dhcp_dns").style.display="block"}catch(e){}
 /*  HUAWEI VARIABLES & FUNCTION
-    start()        Huawei->(indipendent)plmn,nrrsrp,rsrp,nrrssi,enodeb_id*/
+    start()             Huawei->(indipendent)plmn,nrrsrp,rsrp,nrrssi,enodeb_id*/
     Promise.all([
         getSignal(), /*Huawei->nrrsrp,nrrsrq,nrsinr,(nrrssi),(nrcqi0),(lte)rsrp,(lte)rsrq,(lte)sinr,(lte)rssi,(lte)cqi0,nrdlbandwidth,nrulbandwidth,(lte)dlbandwidth,(lte)ulbandwidth,band,nrearfcn,(lte)earfcn,enodeb_id,cell_id,pci,nei_cellid->..*/
-        getStatus(), /*Huawei->(LTE band aggregation status)CurrentNetworkTypeEx->is4gp->..*/
-        getAntenna(),/*Huawei->(antennas status)antenna1type+antenna2type->..*/
-        getNetmode(),/*Huawei->(allowed bands status,indipendent)LTEBand*/
+        getStatus(),    /*Huawei->(LTE band aggregation status)CurrentNetworkTypeEx->is4gp->..*/
+        getAntenna(),   /*Huawei->(antennas status)antenna1type+antenna2type->..*/
+        getNetmode(),   /*Huawei->(allowed bands status,indipendent)LTEBand*/
     ]).then(function()
     {         
-        setEnodebMainbandBTS();/*..<-band,nrearfcn,lteearfcn,enodeb_id,cell_id<-Huawei*/
-        neighborCell();        /*..<-pci,enodeb_id,cell_id,nei_cellid<-Huawei*/  
-        medControl();
+        setENBMainBTS();/*..<-band,nrearfcn,lteearfcn,enodeb_id,cell_id<-Huawei*/
+        neighborCell(); /*..<-pci,enodeb_id,cell_id,nei_cellid<-Huawei*/  
+        medControl();   /*..<-enodeb_id<-Huawei*/
         medCalc();
         barGraph();
-        titleBar();            /*..<-enodeb_id<-Huawei,..<-is4gp<-CurrentNetworkTypeEx<-Huawei*/
+        titleBar();     /*..<-enodeb_id<-Huawei,..<-is4gp<-CurrentNetworkTypeEx<-Huawei*/
     },function(e)
     {
         msg(e);
     });
-/*  clickLTEBandSelection() Huawei->(select bands in use,indipendent)
-    clickStorage()          ..<-antenna1type,antenna2type,enodeb_id<-Huawei
-    extractXML()            (subf for Huawei function)
-    4GType()                (subf for Huawei function)*/
+/*  clicksetLTEBand()   Huawei->(indipendent)
+    clickStorage()      ..<-enodeb_id<-Huawei
+    clickRecMed()       ..<-antenna1type,antenna2type,enodeb_id<-Huawei
+    extractXML()        (sub for Huawei function)
+    4GType()            (sub for Huawei function)*/
 }
 function getSignal()
 {
@@ -153,13 +154,13 @@ function getNetmode()
         let x=new XMLHttpRequest;x.open("GET","/api/net/net-mode",!0),x.setRequestHeader("Content-type","application/json; charset=UTF-8"),x.send(),x.onload=function(){if(200===x.status)ha("allowed",_4GType(extractXML("LTEBand",netmode=x.responseText))),resolve();else reject("Err Netmode:"+x.status);}
     });
 }
-function setEnodebMainbandBTS()
+function setENBMainBTS()
 {
-    if(!defined["enodeb_id"])/*set&view enodeb&link*/
+    if(!defined["enodeb_id"])/*set&view ENB&link*/
         mp=signval["cell_id"].indexOf("-"),mp>0?signval["enodeb_id"]=Number(signval["cell_id"].substr(0,mp)):(hex=Number(signval["cell_id"]).toString(16),hex2=hex.substring(0,hex.length-2),signval["enodeb_id"]=parseInt(hex2,16).toString().padStart(7, "0"));
     ha("enodeb_id",signval["enodeb_id"]);if(state==222)document.getElementById("link").setAttribute("href",link+signval["enodeb_id"].replace(/^0+/,""));
     defltenr.forEach(function(b)
-    {/*set&view mainband*/
+    {/*set&view main*/
         bb=b=="lte"?"B":"N";
         if(b=="lte")/*LTE->"<band>3</band>"*/
             if(!isNaN(signval["band"]))signval[b+"main"]=bb+signval["band"];
@@ -175,7 +176,7 @@ function setEnodebMainbandBTS()
         if(!recstatus[b]){ha(b+"band",signval[b+"main"]);ha(b+"enb",signval["enodeb_id"])}/*view enb&main*/
         enbmainchange[b]=enbmainold[b]!=signval["enodeb_id"]+signval[b+"main"];enbmainold[b]=signval["enodeb_id"]+signval[b+"main"];/*set enb+main continuity*/
     });
-    b=document.getElementById("btsb").style;/*view BTSlocation*/
+    b=document.getElementById("btsb").style;/*view BTSloc*/
 	if(signval["enodeb_id"] in bts)
 	{
         b.display="inline";
@@ -190,16 +191,16 @@ function setEnodebMainbandBTS()
 }
 function neighborCell()
 {
-    if(enbmainchange["lte"])/*auto-save*/
+    if(!enbmainchange["lte"]&&neichange)/*auto-save at 2nd interval*/
     {
-        pci=signval["pci"];
+        neichange=false;pci=signval["pci"];
         if(pci&&pci!="0"&&signval["ltemain"].slice(1)!="0")
         {
             if(pci in neisto&&signval["cell_id"]+signval["enodeb_id"]+signval["ltemain"]!=neisto[pci][0]+neisto[pci][1]+neisto[pci][2])
             {
                 msg("A new neighboring cell has been detected to replace the old one; PCI:"+pci);
-                Object.defineProperty(nei,pci+"*old",Object.getOwnPropertyDescriptor(nei,pci));delete nei[pci];
-                Object.defineProperty(neisto,pci+"*old",Object.getOwnPropertyDescriptor(neisto,pci));delete neisto[pci];
+                Object.defineProperty(nei,pci+"*",Object.getOwnPropertyDescriptor(nei,pci));delete nei[pci];
+                Object.defineProperty(neisto,pci+"*",Object.getOwnPropertyDescriptor(neisto,pci));delete neisto[pci];
             }
             if(!(pci in neisto)&&pci in nei)
                 if(pci in nei)delete nei[pci];
@@ -211,13 +212,13 @@ function neighborCell()
             }
         }
     }
+    if(enbmainchange["lte"])neichange=true;
     if(!neistatus)/*view*/
         return;
-    if(neivis)neivis--;
     tb=document.getElementById('neitab');
     if(signval["nei_cellid"])
     {
-        h="",neivis=3,tb.style.opacity=1;
+        h="",tb.style.opacity=1;
         currnei.forEach(function(v)
         {
             if(v in nei){b0=nei[v][0]?".."+nei[v][0].slice(-4):"---",b1=nei[v][1]?nei[v][1]:"---",b2=nei[v][2]?nei[v][2]:"---"}else{b0="---",b1="---",b2="---"}
@@ -230,10 +231,7 @@ function neighborCell()
         });
         tb.innerHTML=h;
     }
-    else if(neivis)
-        tb.style.opacity=0.4;
-    else 
-        tb.innerHTML="";
+    else if(tb.style.opacity>0)tb.style.opacity-=.35;
 }
 function medControl()
 {
@@ -241,7 +239,7 @@ function medControl()
     for(const[p]of Object.entries(currval))
     {
         b=net(p);
-        if(defined[b]) 
+        if(defined[b])
         {
 /*rec*/     if(currval[p]==-999&&p!=notselsign[b])recvalnot[b]=true;
 /*cur*/     if(!p.includes("rssi"))if(curmed[p].unshift(currval[p]+(currval[p]==-999?"|b":enbmainchange[b]?"|a":"|"))>boxcar*2)curmed[p].pop();
@@ -347,15 +345,14 @@ function barGraph()
         if(p!="nrrssi"&&p!="lterssi"&&defined[b])
         {
             bb=p.slice(b.length),min=window["min_"+bb],max=window["max_"+bb];
-/*current*/ v=vv;abc=(enbmainchange[b]?"|a":"|")+(signval[p].includes("lt")||v<min?"|b":signval[p].includes("gt")||v>max?"|c":"|");
-            if(v<min)v=min;if(v>max)v=max;
+/*current*/ v=vv;abc=(enbmainchange[b]?"|a":"|")+(signval[p].includes("lt")||v<min?"|b":signval[p].includes("gt")||v>max?"|c":"|");if(v<min)v=min;if(v>max)v=max;
             if(currgra[p].unshift(v+abc)>boxcar)currgra[p].pop();
 /*recmed*/  if(recstatus[b])if(recmedgra[p].unshift(recstatus[b]==1?true:false).length>boxcar)recmedgra[p].pop();
 /*graph*/   if(p!=notselsign[b])
             {
-                for(h='',l=currgra[p].length,x=0;x<l;x++)
+                for(h="",l=currgra[p].length,x=0;x<l;x++)
                 {
-                    px=1+gt*x;
+                    px=2+gt*x;
 /*current*/         a=currgra[p][x].split("|"),c=(a[0]-min)/(max-min);
                     d=c*100,co=a[1]=="a"?"blue":a[2]=="b"?"":a[2]=="c"?"green":"rgb("+5*Math.round(d<50?50:100-d)+" "+5*Math.round(d>50?50:d)+" 0)";
                     h+='<line x1="'+px+'"y1="'+gh+'"x2="'+px+'"y2="'+(gh-c*gh-1)+'"stroke="'+co+'"stroke-width="'+gt+'"/>';
@@ -367,11 +364,11 @@ function barGraph()
                             me+=parseFloat(curmed[p][i].split("|")[0]);
                         }
                         if(i>=x+curmaxcount[b]-1)
-                        { 
+                        {
                             me=me/(i-x);if(me>max)me=max;if(me<min)me=min;
                             py=gh-(me-min)/(max-min)*gh;
                             h+='<line x1="'+px+'"y1="'+(py-1)+'"x2="'+px+'"y2="'+py+'"stroke="black"stroke-width="'+gtm+'"/>';
-                        }  
+                        }
                     }
 /*recmed*/          if(recmedgra[p][x])
                     {
@@ -459,9 +456,9 @@ function clickNei(a)
         ha("neireclte",""),ha("neirecnr","");
     }
 }
-function clickLTEBandSelection(bs)/*only LTE?*/
+function clicksetLTEBand(bs)/*only LTE?*/
 {
-	var band;if(main&&(main=null),0==arguments.length){if((band=prompt("Please input LTE bands number allowed separated by '+', add 'm' to set main (example 1+3+20 or m3+7)(the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),main=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(main)return _2ndrun=bs,void ltebandselection(String(main));suspend=1,tit("! PLEASE WAIT !"),xh=new XMLHttpRequest,xh.open("GET","/html/home.html",!0),xh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xh.send(),xh.onload=function(){if(200===xh.status){var datas=xh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),msg(nw),setTimeout((function(){xp=new XMLHttpRequest,xp.open("POST","/api/net/net-mode",!0),xp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xp.setRequestHeader("__RequestVerificationToken",token),cmd="<request><NetworkMode>"+nw+"</NetworkMode><NetworkBand>3FFFFFFF</NetworkBand><LTEBand>"+ltesum+"</LTEBand></request>",xp.send(cmd),xp.onload=function(){200===xp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){ltebandselection(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode:"+xp.status)}}),2e3)}else msg("Err /home.html(token):"+xh.status)}
+	var band;if(main&&(main=null),0==arguments.length){if((band=prompt("Please input LTE bands number allowed separated by '+', add 'm' to set main (example 1+3+20 or m3+7)(the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),main=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(main)return _2ndrun=bs,void ltebandselection(String(main));suspend=true,tit("! PLEASE WAIT !"),xh=new XMLHttpRequest,xh.open("GET","/html/home.html",!0),xh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xh.send(),xh.onload=function(){if(200===xh.status){var datas=xh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),msg(nw),setTimeout((function(){xp=new XMLHttpRequest,xp.open("POST","/api/net/net-mode",!0),xp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xp.setRequestHeader("__RequestVerificationToken",token),cmd="<request><NetworkMode>"+nw+"</NetworkMode><NetworkBand>3FFFFFFF</NetworkBand><LTEBand>"+ltesum+"</LTEBand></request>",xp.send(cmd),xp.onload=function(){200===xp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){ltebandselection(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=false,tit())):msg("Err net-mode:"+xp.status)}}),2e3)}else msg("Err /home.html(token):"+xh.status)}
 }
 function clickNumRecMed(a,b)
 {
@@ -492,9 +489,9 @@ function clickStorage(tipo,b)
     sn=stoname[tipo];
     if(tipo=="rec")
     {
-        wwi=1650;
-        savq=["Please input new record info (optional)."],savl=[35];        
-        html1="Records:",html2="For permanent saving or analysis of recordings, select table, copy and paste it into an Excel sheet or other documents.";
+        wwi=1660;
+        savq=["Please input new record info (optional)."],savl=[35];
+        h1="Records:",h2="For permanent saving or analysis of recordings, select table, copy and paste it into an Excel sheet or other documents.";
         re1=[["","Date and Time","Info","Network","Antennas","ENB Id","Main","Count-Time","RSRP","","","SINR","","","RSRQ","","","RSSI","Signal","","","CQI","","","Neighbor PCI (LTE)"],["","","","","","","","","Med","Max","Min","Med","Max","Min","Med","Max","Min","Med","Med","Max","Min","Med","Max","Min","1st(n) 2nd(n) 3rd(n) 4th(n)"]];
         re2=[];
         if(localStorage.getItem(sn)===null)localStorage.setItem(sn,JSON.stringify([]));re3=JSON.parse(localStorage.getItem(sn));
@@ -503,7 +500,7 @@ function clickStorage(tipo,b)
     {
         wwi=800;
         savq=["Please input new BTS location name (optional).\nTo get info about BTS locations, search for 'Enb Id' on the websites cellmapper.net or lteitaly.it.","Input availables BTS bands (optional)."],savl=[35,35];
-        html1="Locations:", html2="For permanent saving of locations, add them manually into the Hack script (grey in table); to get info about BTS locations search on <a href='https://www.cellmapper.net' target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it' target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it' target='_blank'>lteitaly.it</a> (registration recommended).";
+        h1="Locations:",h2="For permanent saving of locations, add them manually into the Hack script (grey in table); to get info about BTS locations search on <a href='https://www.cellmapper.net' target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it' target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it' target='_blank'>lteitaly.it</a> (registration recommended).";
         re1=[["ENB Id","BTS location name","Availables bands"]];
         re2=JSON.parse(JSON.stringify(bts_location));
         re3=JSON.parse(localStorage.getItem(sn));
@@ -512,7 +509,7 @@ function clickStorage(tipo,b)
     if(tipo=="nei")
     {
         wwi=600;
-        html1="Neighbor cells:", html2="Saving and updating reference data for neighboring cells (PCI) is automatic when connecting to them; to save them manually or permanently add them into the Hack script (grey in table); <b>the cell number ​​may be subject to change by the network operator</b>; to get info about Cells search on <a href='https://www.cellmapper.net' target='_blank'>cellmapper.net</a> or <a href='https://celltracker.it' target='_blank'>Celltracker.it</a>.";
+        h1="Neighbor cells:",h2="Saving and updating reference data for neighboring cells (PCI) is automatic when connecting to them; to save them manually or permanently add them into the Hack script (grey in table); <b>the cell number ​​may be subject to change by the network operator</b>; to get info about Cells search on <a href='https://www.cellmapper.net' target='_blank'>cellmapper.net</a> or <a href='https://celltracker.it' target='_blank'>Celltracker.it</a>.";
         re1=[["PCI","Cell Id","ENB Id","Band"]];
         re2=JSON.parse(JSON.stringify(neighbor_cell));
         re3=JSON.parse(localStorage.getItem(sn));
@@ -525,7 +522,7 @@ function clickStorage(tipo,b)
         if(re2)for(const[a]of Object.entries(re2)){t+="<tr bgcolor='#C0C0C0'><td>"+a+(a in re3?"*":"")+"</td>";for(const[,c]of Object.entries(re2[a]))t+='<td>'+c+'</td>';t+='</tr>';}
         if(re3)for(const[a]of Object.entries(re3)){t+="<tr><td bgcolor='B0E0E6'><input type='checkbox'name='c'value='"+a+"'> "+a+(a in re2?"*":"")+"</td>";for(const[,c]of Object.entries(re3[a]))t+='<td>'+c+'</td>';t+='</tr>'}
         t+="<tr><td bgcolor='B0E0E6'><input id='cc'type='checkbox'onclick='c=document.getElementsByName(\"c\");for(i in c)c[i].checked=this.checked;'></td><td><button onclick='delsto()'>Delete</button></td></tr>";
-        tab=document.createElement('table');tab.innerHTML=t;tb=w.document.getElementById('tb');tb.replaceChildren(tab);
+        tab=document.createElement('table'),tab.innerHTML=t;tb=w.document.getElementById('tb'),tb.replaceChildren(tab);
     };
     w.delsto=function()
     {
@@ -545,7 +542,7 @@ function clickStorage(tipo,b)
         r="";re1.forEach(function(c){r+=c+"\n"});b=new Blob([(r+"\n- In script -\n"+JSON.stringify(re2)+"\n\n- In local storage -\n"+JSON.stringify(re3)).replaceAll("],","],\n")],{type:"text/plain"});
         l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=sn+".txt";l.click();
     };
-    w.document.write("<!DOCTYPE html><html><style>td{padding:2px}table{border:2px solid black}</style><body>"+html1+"<br><span id='tb'></span><b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+html2+"<br><button onclick='savtxt()'>Save</button> table in .txt format.</body></html>");
+    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>* Old/duplicate.<br><b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Save</button> table in .txt format.</body></html>");
     w.tab();
     if(b)setTimeout(()=>
     {
@@ -693,7 +690,7 @@ function ftb()
     <select id="selsignnr" onchange="clickSelSign(this.value,\'nr\')"><option value="nrsign">Signal</option><option value="nrcqi0">CQI</option></select>:<span id="nrsign" class="val"></span><span id="mednrsign" class="med"></span><div id="bnrsign"></div>
 	</div>
     <div id="nei" class="f">
-    <li>Neighbor LTE Cells<input type="checkbox" id="neifor" onclick="clickNei(this);"></li>
+    <li>Neighbor Cells<input type="checkbox" id="neifor" onclick="clickNei(this);"></li>
     <table id="neitaps" class="nei"></table><table id="neitab" class="nei val"></table>
     <span style="position:absolute;bottom:0"><span id="neireclte"></span><br><span id="neirecnr"></span></span>
     </div>
@@ -703,7 +700,7 @@ function ftb()
 <!-- </div><div style="display:block;overflow:auto;position:relative"> -->
 	<div class="f">
     <li id="force" style="display:none">Force Set 4G<input type="checkbox" id="force4g"></li>
-    <li><button class="bot" onclick="clickLTEBandSelection()">Set Bands</button></li>
+    <li><button class="bot" onclick="clicksetLTEBand()">Set Bands</button></li>
 	<li>Allowed:<span id="allowed" class="val"></span></li>
 	</div>
 	<div class="f">
@@ -746,17 +743,17 @@ reccount={"lte":0,"nr":0},recmaxcount={"lte":999,"nr":999},recstatus={"lte":0,"n
 curmed={"nrrsrp":[],"nrrsrq":[],"nrsinr":[],"nrsign":[],"nrcqi0":[],"ltersrp":[],"ltersrq":[],"ltesinr":[],"ltesign":[],"ltecqi0":[]},curmedsign={"lte":0,"nr":0};
 curmaxcount={"lte":0,"nr":0},curstatus={"lte":0,"nr":0};/*status 0off1on2end/pause*/
 /*other*/
-neivis=0,neistatus=1;/*status 0off1min2max*/
+neichange=false;neistatus=1;/*status 0off1min2max*/
 defined={"lte":false,"nr":false,"nrrssi":false,"enodeb_id":false},defltenr=[];
 selsign={"lte":"ltesign","nr":"nrsign"},notselsign={"lte":"ltecqi0","nr":"nrcqi0"};
 enbmainold={"lte":"","nr":""},enbmainchange={"lte":false,"nr":false};
 stoname={"rec":"Hack_recmed","bts":"Hack_locbts","nei":"Hack_neicell"};
-main=null,_2ndrun=null,suspend=0,itime=2000,antenna1type="",antenna2type="",state="",link="",boxcar=0;
+main=null,_2ndrun=null,suspend=false,itime=2000,antenna1type="",antenna2type="",state="",link="";
 earfcn={/*NRmain/LTEmain=Earfcn="priority(1,2,3...)-band":[dlmin,dlmax,ulmin,ulmax];for add Earfcn sqimway.com/nr_band.php or https://sqimway.com/lte_band.php*/
 "nr":{"1-1":[422000,434000,384000,396000],"1-3":[361000,376000,342000,357000],"1-7":[524000,538000,500000,514000],"1-8":[185000,192000,176000,183000],"1-20":[158200,164200,166400,172400],"1-28":[151600,160600,140600,149600],"1-38":[514000,524000,514000,524000],"1-78":[620000,653333,620000,653333],"2-2":[386000,398000,370000,382000],"2-5":[173800,178800,164800,169800],"2-12":[145800,149200,139800,143200],"2-25":[386000,399000,370000,383000],"2-30":[470000,472000,461000,463000],"2-31":[92500,92500,90500,91500],"1-40":[460000,480000,460000,480000],"2-41":[499200,537999,499200,537999],"2-42":[41590,42590,41590,42590],"2-66":[422000,440000,342000,356000],"2-71":[123400,130400,132600,139600],"2-77":[620000,680000,620000,680000],"2-79":[693334,733333,693334,733333]/*..*/},
 "lte":{"1-1":[0,599,18000,18300],"1-3":[1200,1949,19200,19949],"1-7":[2750,3449,20750,21449],"1-8":[3450,3799,21450,21799],"1-20":[6150,6449,24150,24449],"1-28":[9210,9659,27210,27659],/*"1-32":[9920,10359,,],*/"1-38":[37750,38249,37750,38249],"2-2":[600,1199,18600,19199],"2-4":[1950,2399,19950,20399]/*..*/}};
 /*---graph window width, height, line width*/
-gw=500,gh=40,gt=4;
+gw=500,gh=40,gt=4,boxcar=0;
 /*--- SIGNAL VALUE LIMITS ---
 SET limits per usual use (subjective, for calc Signal and graph limits)*/
 max_rsrp=-55,  min_rsrp=-125;  /* dBm RSRP */
@@ -766,10 +763,10 @@ max_rssi=-51,  min_rssi=-100;  /* dBm RSSI */
 max_sign=100,  min_sign=0;     /* % */
 max_cqi0=15,   min_cqi0=0;     /* 0-15
 example Huawei B818 hardware limits
-RSRP dBm   -44     -140(?)
-SINR dB    >=30    <-20
-RSRQ dB    -3      <-19.5
-RSSI dBm   >=-51   -110(?)
+RSRP dBm -44   -140(?)
+SINR dB  >=30  <-20
+RSRQ dB  -3    <-19.5
+RSSI dBm >=-51 -110(?)
 --- BALANCED SIGNAL QUALITY ---
 SET balance ratio (subjective, total 100%)*/
 signal_balance_rsrp=45; /* % RSRP */
@@ -800,10 +797,10 @@ var bts_location={/*
 /*--- NEIGHBOR CELL ---
 ADD or DELETE neighbor cell (optional, get in cellmapper.net or other)*/
 var neighbor_cell={/*
-"PCI":["Cell(op)","0eNB(o)","band(optional)"],*/
+"PCI":["Cell(op)","0ENB(o)","band(optional)"],*/
 "498":[""        ,"0362152","B1"],
  "83":["92769550","0362381","B7"],
 "458":["92722183","0362196","B20"],
 },nei,neisto;
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=window.setInterval(currentData,itime);
-tit("Che la banda sia con te! by Miononno &#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000);msg("Huawei Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.0.1 by Riccardo Fanelli"),msg("Type: netmode, signal, status, antennatype");
+tit("Che la banda sia con te! by Miononno &#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000);msg("Huawei Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.0.2 by Riccardo Fanelli"),msg("Type: netmode, signal, status, antennatype");
