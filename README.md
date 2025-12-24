@@ -3,34 +3,36 @@
 ---
 
 ## English
+### What is Huawei router hack?
 - Huawei router Hack is a JavaScript code that monitors, records, and analyzes the main radio signal parameters of the LTE (4G) and NR (5G) networks received by the modem.
 - With Huawei Hack, you can improve your modem's radio signal reception and thus improve performance simply and effectively.
-- Huawei Hack allows you to find out which channels (or bands) are available in the surrounding area and helps you identify the best position for the modem to receive them or the best position, orientation and arrangement of any external antennas.
+- Huawei Hack allows you to find out which channels (or bands) are available in the surrounding area and helps you find the best position for the modem to receive them or the best position, orientation, and arrangement of any external antennas.
 
-### Install and launch Huawei Hack:
+### Installing and starting Huawei Router Hack is very simple:
 1. Create/add a new Browser Favorites/Bookmarks and name it Hack;
 2. Select all Hack JavaScript code, copy and paste it into the Bookmark URL box and save;
-3. From Browser URL box open the router's address http://192.168.8.1 and log in;
+3. From the browser open the page at the address http://192.168.8.1 of the router and log in;
 4. On this open Browser page load Hack from Bookmarks.
 
 - Huawei Hack was tested on a Huawei B818 4G router, Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it - Advanced v1.0.2 by Riccardo Fanelli.
+- Base code v5.0 by miononno.it - Advanced v1.0.3 by Riccardo Fanelli.
 
 ---
 
 ## Italiano
+### What is Huawei router hack?
 - Huawei router Hack è uno codice JavaScript che monitora, registra e analizza i principali parametri del segnale radio delle reti LTE(4G) e NR(5G) captate dal modem.
 - Con Huawei Hack è possibile migliorare la ricezione del segnale radio del modem ed quindi migliorare le prestazioni in modo semplice ed efficace.
-- Huawei Hack permette di sapere quali canali (o bande) sono a disponibili nella zona circostante e aiuta a individuare la miglior posizione del modem per captarli o la miglior posizione, orientamento e disposizione delle eventuali antenne esterne.
+- Huawei Hack permette di sapere quali sono i canali (o bande) presenti nella zona circostante e aiuta a trovare la migliore posizione del modem per captarle o la miglior posizione, orientamento e disposizione delle eventuali antenne esterne.
 
-### Installare e avviare Huawei Hack:
+### L'installazione e avvio di Huawei router Hack è semplicissimo:
 1. Creare/aggiungere un nuovo Segnalibro/Preferito al Browser e nominarlo Hack;
 2. Selezionare tutto il codice JavaScript Hack, copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo;
-3. Dall'URL del Browser aprire l'indirizzo http://192.168.8.1 del router e accedere;
+3. Dal Browser aprire la pagina all'indirizzo http://192.168.8.1 del router e accedere;
 4. In questa pagina aperta del Browser caricare Hack dai Segnalibri.
 
 - Huawei Hack è stato testato su un router Huawei B818 4G, browser Firefox, Edge, Chrome.
-- Codice base v5.0 di miononno.it - evoluzione v1.0.2 di Riccardo Fanelli.
+- Codice base v5.0 di miononno.it - evoluzione v1.0.3 di Riccardo Fanelli.
 
 ---
 
@@ -232,7 +234,8 @@ function setENBMainBTS()
 }
 function neighborCell()
 {
-    if(!enbmainchange["lte"]&&neichange)/*auto-save at 2nd interval*/
+    if(enbmainchange["lte"])neichange=true;/*auto save-at 2nd interval*/
+    else if(neichange)
     {
         neichange=false;pci=signval["pci"];
         if(pci&&pci!="0"&&signval["ltemain"].slice(1)!="0")
@@ -253,7 +256,6 @@ function neighborCell()
             }
         }
     }
-    if(enbmainchange["lte"])neichange=true;
     if(!neistatus)/*view*/
         return;
     tb=document.getElementById('neitab');
@@ -475,9 +477,9 @@ function clickNei(a)
     if(a.readOnly)a.checked=a.readOnly=false;else if(!a.checked)a.readOnly=a.indeterminate=true;
     n=document.getElementById('nei').style,s=document.documentElement.style;
     ha('neitab',"");
-    function td(a,b,c,d)
+    function td(c,d,e,f)
     {
-        s.setProperty("--neitd1",a+"%"),s.setProperty("--neitd2",b+"%"),s.setProperty("--neitd3",c+"%"),s.setProperty("--neitd4",d+"%");
+        s.setProperty("--neitd1",c+"%"),s.setProperty("--neitd2",d+"%"),s.setProperty("--neitd3",e+"%"),s.setProperty("--neitd4",f+"%");
     }
     if(a.checked)
 	{
@@ -499,7 +501,8 @@ function clickNei(a)
 }
 function clicksetLTEBand(bs)/*only LTE?*/
 {
-	var band;if(main&&(main=null),0==arguments.length){if((band=prompt("Please input LTE bands number allowed separated by '+', add 'm' to set main (example 1+3+20 or m3+7)(the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),main=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(main)return _2ndrun=bs,void ltebandselection(String(main));suspend=true,tit("! PLEASE WAIT !"),xh=new XMLHttpRequest,xh.open("GET","/html/home.html",!0),xh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xh.send(),xh.onload=function(){if(200===xh.status){var datas=xh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),msg(nw),setTimeout((function(){xp=new XMLHttpRequest,xp.open("POST","/api/net/net-mode",!0),xp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xp.setRequestHeader("__RequestVerificationToken",token),cmd="<request><NetworkMode>"+nw+"</NetworkMode><NetworkBand>3FFFFFFF</NetworkBand><LTEBand>"+ltesum+"</LTEBand></request>",xp.send(cmd),xp.onload=function(){200===xp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){ltebandselection(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=false,tit())):msg("Err net-mode:"+xp.status)}}),2e3)}else msg("Err /home.html(token):"+xh.status)}
+	var band;if(main&&(main=null),0==arguments.length){if((band=prompt("Please input LTE bands number allowed separated by '+', add 'm' to set main (example 1+3+20 or m3+7)(the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),main=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(main)return _2ndrun=bs,void ltebandselection(String(main));
+    suspend=true,tit("! PLEASE WAIT !"),xh=new XMLHttpRequest,xh.open("GET","/html/home.html",!0),xh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xh.send(),xh.onload=function(){if(200===xh.status){var datas=xh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),msg(nw),setTimeout((function(){xp=new XMLHttpRequest,xp.open("POST","/api/net/net-mode",!0),xp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xp.setRequestHeader("__RequestVerificationToken",token),cmd="<request><NetworkMode>"+nw+"</NetworkMode><NetworkBand>3FFFFFFF</NetworkBand><LTEBand>"+ltesum+"</LTEBand></request>",xp.send(cmd),xp.onload=function(){200===xp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){ltebandselection(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=false,tit())):msg("Err net-mode:"+xp.status)}}),2e3)}else msg("Err /home.html(token):"+xh.status)}
 }
 function clickNumRecMed(a,b)
 {
@@ -523,7 +526,7 @@ function clickTime()
 }
 function clickInfo()
 {
-    alert("--- General technical information\nRSRP: Useful signal strength of the cell to which you are connected.\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\nSINR: Explicit signal quality from the ratio of the useful signal strength to interference+noise strengths.\nCQI: Evaluation of the quality of the signal in use calculated by the modem and sent to the BTS to adapt the modulation and speed of the data transmission.\nSignal: Signal quality evaluation calculated by balancing the underlying parameters.\nCell Id/PCI: Numerical identification of a radio signal at a specific frequency or band transmitted and received by an antenna/Short identification number of a cell in a limited area.\n\n--- SIGNAL QUALITY BALANCED\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_rssi="+signal_balance_rssi+"%\n\n--- SIGNAL VALUE LIMITS (Usual)\nmax_rsrp="+max_rsrp+"dBm min_rsrp="+min_rsrp+"dBm\nmax_sinr="+max_sinr+"dB min_sinr="+min_sinr+"dB\nmax_rsrq="+max_rsrq+"dB min_rsrq="+min_rsrq+"dB\nmax_rssi="+max_rssi+"dBm min_rssi="+min_rssi+"dBm\n\n--- BTS LOCATION\n...\n\n--- NEIGHBOR CELL\n...\n\nTo change parameter values, edit the Hack's script.");
+    alert("--- General technical information\nRSRP: Useful signal strength of the cell to which you are connected.\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\nSINR: Explicit signal quality from the ratio of the useful signal strength to interference+noise strengths.\nCQI / Signal: Signal quality evaluation calculated by the modem and sent to the BTS to adjusts the signal modulation and speed / Signal quality evaluation calculated by balancing the underlying parameters.\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an antenna / Short id. num. of a cell in a limited area.\nBTS / ENB Id: Base tower station / Id. num. for 2nd advanced node for LTE of a BTS.\n\n--- SIGNAL QUALITY BALANCED\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_rssi="+signal_balance_rssi+"%\n\n--- SIGNAL VALUE LIMITS (Usual)\nmax_rsrp="+max_rsrp+"dBm min_rsrp="+min_rsrp+"dBm\nmax_sinr="+max_sinr+"dB min_sinr="+min_sinr+"dB\nmax_rsrq="+max_rsrq+"dB min_rsrq="+min_rsrq+"dB\nmax_rssi="+max_rssi+"dBm min_rssi="+min_rssi+"dBm\n\n--- BTS LOCATION\n...\n\n--- NEIGHBOR CELL\n...\n\nTo change parameter values, edit the Hack's script.");
 }
 function clickStorage(tipo,b)
 {
@@ -541,7 +544,7 @@ function clickStorage(tipo,b)
     {
         wwi=800;
         savq=["Please input new BTS location name (optional).\nTo get info about BTS locations, search for 'Enb Id' on the websites cellmapper.net or lteitaly.it.","Input availables BTS bands (optional)."],savl=[35,35];
-        h1="Locations:",h2="For permanent saving of locations, add them manually into the Hack script (grey in table); to get info about BTS locations search on <a href='https://www.cellmapper.net' target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it' target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it' target='_blank'>lteitaly.it</a> (registration recommended).";
+        h1="Locations:",h2="For permanent saving of locations, add them manually into the Hack script (grey in table); to get info about BTS locations search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
         re1=[["ENB Id","BTS location name","Availables bands"]];
         re2=JSON.parse(JSON.stringify(bts_location));
         re3=JSON.parse(localStorage.getItem(sn));
@@ -550,21 +553,21 @@ function clickStorage(tipo,b)
     if(tipo=="nei")
     {
         wwi=600;
-        h1="Neighbor cells:",h2="Saving and updating reference data for neighboring cells (PCI) is automatic when connecting to them; to save them manually or permanently add them into the Hack script (grey in table); <b>the cell number ​​may be subject to change by the network operator</b>; to get info about Cells search on <a href='https://www.cellmapper.net' target='_blank'>cellmapper.net</a> or <a href='https://celltracker.it' target='_blank'>Celltracker.it</a>.";
+        h1="Neighbor cells:",h2="Saving and updating reference data for neighboring cells (PCI) is automatic when connecting to them; to save them manually or permanently add them into the Hack script (grey in table); <b>the cell number ​​may be subject to change by the network operator</b>; to get info about Cells search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a> or <a href='https://celltracker.it'target='_blank'>Celltracker.it</a>.";
         re1=[["PCI","Cell Id","ENB Id","Band"]];
         re2=JSON.parse(JSON.stringify(neighbor_cell));
         re3=JSON.parse(localStorage.getItem(sn));
     }
-    w=window.open("","Hack store","width="+wwi+",height=800");w.focus();w.document.body.innerHTML="";
-    w.tab=function()
+    function tab()
     {
-        t="";
-        if(re1)for(const[a]of Object.entries(re1)){t+="<tr bgcolor='B0E0E6'>";for(const[,c]of Object.entries(re1[a]))t+="<td>"+c+"</td>";t+="</tr>";}
-        if(re2)for(const[a]of Object.entries(re2)){t+="<tr bgcolor='#C0C0C0'><td>"+a+(a in re3?"*":"")+"</td>";for(const[,c]of Object.entries(re2[a]))t+='<td>'+c+'</td>';t+='</tr>';}
-        if(re3)for(const[a]of Object.entries(re3)){t+="<tr><td bgcolor='B0E0E6'><input type='checkbox'name='c'value='"+a+"'> "+a+(a in re2?"*":"")+"</td>";for(const[,c]of Object.entries(re3[a]))t+='<td>'+c+'</td>';t+='</tr>'}
-        t+="<tr><td bgcolor='B0E0E6'><input id='cc'type='checkbox'onclick='c=document.getElementsByName(\"c\");for(i in c)c[i].checked=this.checked;'></td><td><button onclick='delsto()'>Delete</button></td></tr>";
-        tab=document.createElement('table'),tab.innerHTML=t;tb=w.document.getElementById('tb'),tb.replaceChildren(tab);
+        h="";
+        for(const[a]of Object.entries(re1)){h+="<tr bgcolor='B0E0E6'>";for(const[,c]of Object.entries(re1[a]))h+="<td>"+c+"</td>";h+="</tr>";}
+        for(const[a]of Object.entries(re2)){h+="<tr bgcolor='#C0C0C0'><td>"+a+(a in re3?"*":"")+"</td>";for(const[,c]of Object.entries(re2[a]))h+='<td>'+c+'</td>';h+='</tr>';}
+        for(const[a]of Object.entries(re3)){h+="<tr><td bgcolor='B0E0E6'><input type='checkbox'name='c'value='"+a+"'> "+a+(a in re2?"*":"")+"</td>";for(const[,c]of Object.entries(re3[a]))h+='<td>'+c+'</td>';h+='</tr>'}
+        h+="<tr><td bgcolor='B0E0E6'><input id='cc'type='checkbox'onclick='c=document.getElementsByName(\"c\");for(i in c)c[i].checked=this.checked;'></td><td><button onclick='delsto()'>Delete</button></td></tr>";
+        t=document.createElement('table'),t.innerHTML=h;tb=w.document.getElementById('tb'),tb.replaceChildren(t);
     };
+    w=window.open("","Hack store","width="+wwi+",height=800");w.focus();w.document.body.innerHTML="";
     w.delsto=function()
     {
         for(c=w.document.getElementsByName('c'),i=c.length-1;i>=0;i--)
@@ -576,7 +579,7 @@ function clickStorage(tipo,b)
                 if(tipo=="nei"){localStorage.setItem(sn,JSON.stringify(re3));loadnei(sn)}
             }
         w.document.getElementById("cc").checked=false;
-        w.tab();
+        tab();
     };
     w.savtxt=function()
     {
@@ -584,7 +587,7 @@ function clickStorage(tipo,b)
         l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=sn+".txt";l.click();
     };
     w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>* Old/duplicate.<br><b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Save</button> table in .txt format.</body></html>");
-    w.tab();
+    tab();
     if(b)setTimeout(()=>
     {
         for(var inf=[],l=savq.length,i=0;i<l;i++)do{inf[i]=w.prompt(savq[i]+"\nMax "+savl[i]+" char.");if(inf[i]===null)return}while(inf[i].length>savl[i]);
@@ -600,7 +603,7 @@ function clickStorage(tipo,b)
             re3[enb]=[inf[0],inf[1]];
         }
         localStorage.setItem(sn,JSON.stringify(re3));
-        w.tab();
+        tab();
     },99);
 }
 function ftb()
@@ -713,7 +716,6 @@ function ftb()
         border-radius:5px;
     }
 	</style>
-
 	<div style="display:block;overflow:auto;position:relative">
 	<div id="tit"></div>
     <div name="lte" style="display:none" class="f">
@@ -779,7 +781,7 @@ recmed={"nrrsrp":0,"nrrsrq":0,"nrsinr":0,"nrrssi":0,"nrsign":0,"nrcqi0":0,"lters
 recmedgra={"nrrsrp":[],"nrrsrq":[],"nrsinr":[],"nrsign":[],"nrcqi0":[],"ltersrp":[],"ltersrq":[],"ltesinr":[],"ltesign":[],"ltecqi0":[]};
 recnumnei={"lte":{},"nr":{}},recneires={"lte":"","nr":""};
 recenb={"lte":"","nr":""},recband={"lte":"","nr":""},recpause={"lte":"","nr":""},recenbpause={"lte":"►","nr":"►"},recbandpause={"lte":"►","nr":"►"},recvalnot={"lte":false,"nr":false},recant="";
-reccount={"lte":0,"nr":0},recmaxcount={"lte":999,"nr":999},recstatus={"lte":0,"nr":0};/*status 0off1on2pause3end*/
+recmaxcount={"lte":999,"nr":999},reccount={"lte":0,"nr":0},recstatus={"lte":0,"nr":0};/*status 0off1on2pause3end*/
 /*curMed*/
 curmed={"nrrsrp":[],"nrrsrq":[],"nrsinr":[],"nrsign":[],"nrcqi0":[],"ltersrp":[],"ltersrq":[],"ltesinr":[],"ltesign":[],"ltecqi0":[]},curmedsign={"lte":0,"nr":0};
 curmaxcount={"lte":0,"nr":0},curstatus={"lte":0,"nr":0};/*status 0off1on2end/pause*/
@@ -787,7 +789,7 @@ curmaxcount={"lte":0,"nr":0},curstatus={"lte":0,"nr":0};/*status 0off1on2end/pau
 neichange=false;neistatus=1;/*status 0off1min2max*/
 defined={"lte":false,"nr":false,"nrrssi":false,"enodeb_id":false},defltenr=[];
 selsign={"lte":"ltesign","nr":"nrsign"},notselsign={"lte":"ltecqi0","nr":"nrcqi0"};
-enbmainold={"lte":"","nr":""},enbmainchange={"lte":false,"nr":false};
+enbmainchange={"lte":false,"nr":false},enbmainold={"lte":"","nr":""};
 stoname={"rec":"Hack_recmed","bts":"Hack_locbts","nei":"Hack_neicell"};
 main=null,_2ndrun=null,suspend=false,itime=2000,antenna1type="",antenna2type="",state="",link="";
 earfcn={/*NRmain/LTEmain=Earfcn="priority(1,2,3...)-band":[dlmin,dlmax,ulmin,ulmax];for add Earfcn sqimway.com/nr_band.php or https://sqimway.com/lte_band.php*/
@@ -797,12 +799,12 @@ earfcn={/*NRmain/LTEmain=Earfcn="priority(1,2,3...)-band":[dlmin,dlmax,ulmin,ulm
 gw=500,gh=40,gt=4,boxcar=0;
 /*--- SIGNAL VALUE LIMITS ---
 SET limits per usual use (subjective, for calc Signal and graph limits)*/
-max_rsrp=-55,  min_rsrp=-125;  /* dBm RSRP */
-max_sinr=25,   min_sinr=-20;   /* dB  SINR */
-max_rsrq=-3,   min_rsrq=-19.5; /* dB  RSRQ */
-max_rssi=-51,  min_rssi=-100;  /* dBm RSSI */
-max_sign=100,  min_sign=0;     /* % */
-max_cqi0=15,   min_cqi0=0;     /* 0-15
+max_rsrp=-55, min_rsrp=-125;  /* dBm RSRP */
+max_sinr=25,  min_sinr=-20;   /* dB  SINR */
+max_rsrq=-3,  min_rsrq=-19.5; /* dB  RSRQ */
+max_rssi=-51, min_rssi=-100;  /* dBm RSSI */
+max_sign=100, min_sign=0;     /* % */
+max_cqi0=15,  min_cqi0=0;     /* 0-15
 example Huawei B818 hardware limits
 RSRP dBm -44   -140(?)
 SINR dB  >=30  <-20
@@ -844,5 +846,5 @@ var neighbor_cell={/*
 "458":["92722183","0362196","B20"],
 },nei,neisto;
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=window.setInterval(currentData,itime);
-tit("Che la banda sia con te! by Miononno &#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000);msg("Huawei Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.0.2 by Riccardo Fanelli"),msg("Type: netmode, signal, status, antennatype");
+tit("Che la banda sia con te! by Miononno &#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000),msg("Huawei Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.0.3 by Riccardo Fanelli"),msg("Type: netmode, signal, status, antennatype");
 ```
