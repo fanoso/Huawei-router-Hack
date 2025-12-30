@@ -835,31 +835,11 @@ var bts_location={/*
 "0363035":["2:Piscille volumni 1,9km"           ,"B7+ B1+"],
 "0362035":["1:Piscille volumni 1,9km"           ,"B3+ B20 B28 N3 N28 N38 N78"],
 "0362005":["Borgo XX giugno S.Pietro 2,3km"     ,"B1+ B3+ N3"],
-"0362379":["1:Balanzano 4,6km"                  ,"B3+ N3"],
-"0363379":["2:Balanzano 4,6km"                  ,"B1+"],
-"0363316":["2:S.Martino in campo 8,6km"         ,"B7 B1"],
-"0362316":["1:S.Martino in campo 8,6km"         ,"B3 B20 B28 N3 N28"],
-"0363412":["2:Ponte nuovo nord 10,2km"          ,"B7 B1"], 
-"0362412":["1:Ponte nuovo nord 10,2km"          ,"B3 B20 B28 N3 N28 N38 N78"],
-"0363195":["2:Ponte nuovo sud 12,0km"           ,"B7+ B1+"],
-"0362195":["1:Ponte nuovo sud 12,0km"           ,"B3+ B20 N3"],
-"0362215":["Spello stazione 24,8km"             ,"B7 B1 B3 B20 N3"],
-"0363190":["2:Foligno sud ospedale 27,4km"      ,"B1+ N3"],
-"0362190":["1:Foligno sud ospedale 27,4km"      ,"B3+ B7+ B20"],
-"0362413":["Foligno centro v.Mazzini 28,6km"    ,"B7 B1 B3 N3"],
-"0363109":["2:Foligno centro v.Battisti 28,9km" ,"B7+ B1+ B28 N28"],
-"0362109":["1:Foligno centro v.Battisti 28,9km" ,"B3+ B20 N3 N38 N78"],
-"0363054":["2:Fratta Todina 29,0km"             ,"B7 B1"],
-"0362054":["1:Fratta Todina 29,0km"             ,"B3 B20 B28 N3 N28"],
-"0363397":["2:Foligno est v.Colpernaco 29,6km"  ,"B7+ B1+"],
-"0362397":["1:Foligno est v.Colpernaco 29,6km"  ,"B3+ B20 N3"],
-"0363396":["2:Foligno est s.S.Bartolomeo 30,0km","B1+"],
 },bts;
 /*--- NEIGHBOR CELL ---
 ADD or DELETE neighbor cell (optional, get in cellmapper.net or other)*/
 var neighbor_cell={/*
 "PCI":["Cell(op)","0ENB(o)","band(optional)"],*/
- "61":["93008908","0363316","B7"],
 "498":[""        ,"0362152","B1"],
  "83":["92769550","0362381","B7"],
 "458":["92722183","0362196","B20"],
