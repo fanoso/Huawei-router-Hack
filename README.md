@@ -15,7 +15,7 @@
 4. On this open Browser page load Hack from Bookmarks.
 
 - Huawei Hack was tested on a Huawei B818 4G router, Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it - Advanced v1.0.3 by Riccardo Fanelli.
+- Base code v5.0 by miononno.it - Advanced v1.0.4 by Riccardo Fanelli.
 
 ---
 
@@ -32,7 +32,7 @@
 4. In questa pagina aperta del Browser caricare Hack dai Segnalibri.
 
 - Huawei Hack è stato testato su un router Huawei B818 4G, browser Firefox, Edge, Chrome.
-- Codice base v5.0 di miononno.it - evoluzione v1.0.3 di Riccardo Fanelli.
+- Codice base v5.0 di miononno.it - evoluzione v1.0.4 di Riccardo Fanelli.
 
 ---
 
@@ -86,7 +86,6 @@ function loadnei()
 }
 function start()
 {
-    e1=document.getElementsByName("lte");e2=document.getElementsByName("nr");
     let x=new XMLHttpRequest;x.open("GET","/api/device/signal",!0),x.setRequestHeader("Content-type","application/json; charset=UTF-8"),x.send(),x.onload=function()
     {
         if(200===x.status)
@@ -104,9 +103,9 @@ function start()
             /*defined lte/nr/nrrssi/enodeb_id*/
             defined["nr"]="undefined"!=typeof extractXML("nrrsrp",x.responseText),defined["lte"]="undefined"!=typeof extractXML("rsrp",x.responseText),defined["nrrssi"]="undefined"!=typeof extractXML("nrrssi",x.responseText),defined["enodeb_id"]="undefined"!=typeof extractXML("enodeb_id",x.responseText);
             ["lte","nr"].forEach(function(b){if(defined[b])defltenr.push(b)});
-            for(l=e1.length,i=0;i<l;i++)/*set HTMLpage*/
+            for(e1=document.getElementsByName("lte"),l=e1.length,i=0;i<l;i++)/*set HTMLpage*/
                 e1[i].style.display=defined["lte"]?"inline-block":"none";
-            for(l=e2.length,i=0;i<l;i++)
+            for(e2=document.getElementsByName("nr"),l=e2.length,i=0;i<l;i++)
                 e2[i].style.display=defined["nr"]?"inline-block":"none";
             document.getElementById("force").style.display=defined["nr"]&&defined["lte"]?"inline-block":"none";
         }
@@ -155,10 +154,10 @@ function getSignal()
             if(200===x.status)
             {
                 signal=d=x.responseText;/*get&view and get*/
-                for(l=signnam.length,i=0;i<l;i++)signval[signnam[i]]=extractXML(signnam[i].replace("lte",""),d),ha(signnam[i],signval[signnam[i]]);
-                for(l=signnam2.length,i=0;i<l;i++)signval[signnam2[i]]=extractXML(signnam2[i].replace("lte",""),d);
+                signnam.forEach(function(b){signval[b]=extractXML(b.replace("lte",""),d);ha(b,signval[b])});
+                signnam2.forEach(function(b){signval[b]=extractXML(b.replace("lte",""),d)});
                 if(defined["nr"]&&!defined["nrrssi"]){ha("nrrssi","");signval["nrrssi"]="0"}
-                for(i=defined["nr"]?0:5,l=defined["lte"]?10:5;i<l;i++)/*convert str->num nrrsrp||ltersrp>>nrcqr0||ltecqr0*/
+                for(i=defined["nr"]?0:5,l=defined["lte"]?10:5;i<l;i++)/*convert str->num||num-error*/
                 {
                     currval[signnam[i]]=parseFloat(signval[signnam[i]].replace(/[^0-9\.\-]/g,"")||-999)+(signval[signnam[i]].includes("gt")?1:signval[signnam[i]].includes("lt")?-1:0);
                     if(currval[signnam[i]]>999||currval[signnam[i]]<-999)currval[signnam[i]]=-999;
@@ -200,7 +199,7 @@ function getNetmode()
 function setENBMainBTS()
 {
     if(!defined["enodeb_id"])/*set&view ENB&link*/
-        mp=signval["cell_id"].indexOf("-"),mp>0?signval["enodeb_id"]=Number(signval["cell_id"].substr(0,mp)):(hex=Number(signval["cell_id"]).toString(16),hex2=hex.substring(0,hex.length-2),signval["enodeb_id"]=parseInt(hex2,16).toString().padStart(7, "0"));
+        mp=signval["cell_id"].indexOf("-"),mp>0?signval["enodeb_id"]=Number(signval["cell_id"].substr(0,mp)):(hex=Number(signval["cell_id"]).toString(16),hex2=hex.substring(0,hex.length-2),signval["enodeb_id"]=parseInt(hex2,16).toString().padStart(7,"0"));
     ha("enodeb_id",signval["enodeb_id"]);if(state==222)document.getElementById("link").setAttribute("href",link+signval["enodeb_id"].replace(/^0+/,""));
     defltenr.forEach(function(b)
     {/*set&view main*/
@@ -420,7 +419,7 @@ function barGraph()
                         h+='<line x1="'+px+'"y1="'+(py-1)+'"x2="'+px+'"y2="'+py+'"stroke="black"stroke-width="'+gtm+'"/>';
                     }
                 }
-                document.getElementById("b"+p).innerHTML='<svg version="1.1"viewBox="0 0 '+gw+' '+gh+'"width="'+gw+'"height="'+gh+'"preserveAspectRatio="xMaxYMax slice"style="border:1px solid #ccc;padding:1px;margin:-6px 0 -10px;width:'+gw+'px;">'+h+'</svg>';
+                document.getElementById("b"+p).innerHTML='<svg version="1.1"viewBox="0 0 '+gw+' '+gh+'"width="'+gw+'"height="'+gh+'"preserveAspectRatio="xMaxYMax slice"style="border:1px solid #ccc;padding:1px;margin:-6px 0 -10px;width:'+gw+'px">'+h+'</svg>';
             }
         }
     }
@@ -593,7 +592,7 @@ function clickStorage(tipo,b)
         for(var inf=[],l=savq.length,i=0;i<l;i++)do{inf[i]=w.prompt(savq[i]+"\nMax "+savl[i]+" char.");if(inf[i]===null)return}while(inf[i].length>savl[i]);
         if(tipo=="rec")
         {
-            d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short', timeStyle: 'short'});
+            d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short',timeStyle: 'short'});
             if(selsign[b]==b+"cqi0"){rmes=rmis=rmas="";rmec=ro(recmed[b+"cqi0"]);rmic=recmin[b+"cqi0"];rmac=recmax[b+"cqi0"]}else{rmec=rmic=rmac="";rmes=ro(recmed[b+"sign"]);rmis=ro(recmin[b+"sign"]);rmas=ro(recmax[b+"sign"])}
             re3.push([t,inf[0],b.toUpperCase(),recant,recenb[b],recband[b],recpause[b]+reccount[b]+"-"+(itime/1000),ro(recmed[b+"rsrp"]),recmax[b+"rsrp"],recmin[b+"rsrp"],ro(recmed[b+"sinr"]),recmax[b+"sinr"],recmin[b+"sinr"],ro(recmed[b+"rsrq"]),recmax[b+"rsrq"],recmin[b+"rsrq"],ro(recmed[b+"rssi"]),rmes,rmas,rmis,rmec,rmac,rmic,recneires[b]]);
         }
@@ -721,14 +720,14 @@ function ftb()
     <div name="lte" style="display:none" class="f">
     RSRP:<span id="ltersrp" class="val"></span><span id="medltersrp" class="med"></span><span style="float:right">ENB:<span id="lteenb" class="val"></span>&ensp;Band:<span id="lteband" class="val"></span></span><div id="bltersrp"></div>
     SINR:<span id="ltesinr" class="val"></span><span id="medltesinr" class="med"></span><span style="float:right">RecordMed<input type="checkbox" id="reclte" onclick="clickRecMed(this,\'lte\');"></span><div id="bltesinr"></div>
-	RSRQ:<span id="ltersrq" class="val"></span><span id="medltersrq" class="med"></span><span style="float:right" id="countlte">RecordMed:<span id="medcountlte" class="val"></span><input id="medsetcountlte" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57);" onblur="clickNumCurMed(this,\'lte\')" onfocus="this.value=\'\';"></span><div id="bltersrq"></div>
+	RSRQ:<span id="ltersrq" class="val"></span><span id="medltersrq" class="med"></span><span style="float:right" id="countlte">CurrentMed:<span id="medcountlte" class="val"></span><input id="medsetcountlte" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57);" onblur="clickNumCurMed(this,\'lte\')" onfocus="this.value=\'\';"></span><div id="bltersrq"></div>
     RSSI:<span id="lterssi" class="val"></span><span id="medlterssi" class="med"></span><span style="float:right" id="storelte"></span><br>
     <select id="selsignlte"onchange="clickSelSign(this.value,\'lte\')"><option value="ltesign">Signal</option><option value="ltecqi0">CQI</option></select>:<span id="ltesign" class="val"></span><span id="medltesign" class="med"></span><div id="bltesign"></div>
     </div>
 	<div name="nr" style="display:none" class="f">
 	RSRP:<span id="nrrsrp" class="val"></span><span id="mednrrsrp" class="med"></span><span style="float:right">ENB:<span id="nrenb" class="val"></span>&ensp;Band:<span id="nrband" class="val"></span></span><div id="bnrrsrp"></div>
 	SINR:<span id="nrsinr" class="val"></span><span id="mednrsinr" class="med"></span><span style="float:right">RecordMed<input type="checkbox" id="recnr" onclick="clickRecMed(this,\'nr\');"></span><div id="bnrsinr"></div>
-    RSRQ:<span id="nrrsrq" class="val"></span><span id="mednrrsrq" class="med"></span><span style="float:right" id="countnr">RecordMed:<span id="medcountnr" class="val"></span><input id="medsetcountnr" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57);" onblur="clickNumCurMed(this,\'nr\')" onfocus="this.value=\'\';"></span><div id="bnrrsrq"></div>
+    RSRQ:<span id="nrrsrq" class="val"></span><span id="mednrrsrq" class="med"></span><span style="float:right" id="countnr">CurrentMed:<span id="medcountnr" class="val"></span><input id="medsetcountnr" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57);" onblur="clickNumCurMed(this,\'nr\')" onfocus="this.value=\'\';"></span><div id="bnrrsrq"></div>
     RSSI:<span id="nrrssi" class="val"></span><span id="mednrrssi" class="med"></span><span style="float:right" id="storenr"></span><br>
     <select id="selsignnr" onchange="clickSelSign(this.value,\'nr\')"><option value="nrsign">Signal</option><option value="nrcqi0">CQI</option></select>:<span id="nrsign" class="val"></span><span id="mednrsign" class="med"></span><div id="bnrsign"></div>
 	</div>
@@ -836,15 +835,35 @@ var bts_location={/*
 "0363035":["2:Piscille volumni 1,9km"           ,"B7+ B1+"],
 "0362035":["1:Piscille volumni 1,9km"           ,"B3+ B20 B28 N3 N28 N38 N78"],
 "0362005":["Borgo XX giugno S.Pietro 2,3km"     ,"B1+ B3+ N3"],
+"0362379":["1:Balanzano 4,6km"                  ,"B3+ N3"],
+"0363379":["2:Balanzano 4,6km"                  ,"B1+"],
+"0363316":["2:S.Martino in campo 8,6km"         ,"B7 B1"],
+"0362316":["1:S.Martino in campo 8,6km"         ,"B3 B20 B28 N3 N28"],
+"0363412":["2:Ponte nuovo nord 10,2km"          ,"B7 B1"], 
+"0362412":["1:Ponte nuovo nord 10,2km"          ,"B3 B20 B28 N3 N28 N38 N78"],
+"0363195":["2:Ponte nuovo sud 12,0km"           ,"B7+ B1+"],
+"0362195":["1:Ponte nuovo sud 12,0km"           ,"B3+ B20 N3"],
+"0362215":["Spello stazione 24,8km"             ,"B7 B1 B3 B20 N3"],
+"0363190":["2:Foligno sud ospedale 27,4km"      ,"B1+ N3"],
+"0362190":["1:Foligno sud ospedale 27,4km"      ,"B3+ B7+ B20"],
+"0362413":["Foligno centro v.Mazzini 28,6km"    ,"B7 B1 B3 N3"],
+"0363109":["2:Foligno centro v.Battisti 28,9km" ,"B7+ B1+ B28 N28"],
+"0362109":["1:Foligno centro v.Battisti 28,9km" ,"B3+ B20 N3 N38 N78"],
+"0363054":["2:Fratta Todina 29,0km"             ,"B7 B1"],
+"0362054":["1:Fratta Todina 29,0km"             ,"B3 B20 B28 N3 N28"],
+"0363397":["2:Foligno est v.Colpernaco 29,6km"  ,"B7+ B1+"],
+"0362397":["1:Foligno est v.Colpernaco 29,6km"  ,"B3+ B20 N3"],
+"0363396":["2:Foligno est s.S.Bartolomeo 30,0km","B1+"],
 },bts;
 /*--- NEIGHBOR CELL ---
 ADD or DELETE neighbor cell (optional, get in cellmapper.net or other)*/
 var neighbor_cell={/*
 "PCI":["Cell(op)","0ENB(o)","band(optional)"],*/
+ "61":["93008908","0363316","B7"],
 "498":[""        ,"0362152","B1"],
  "83":["92769550","0362381","B7"],
 "458":["92722183","0362196","B20"],
 },nei,neisto;
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=window.setInterval(currentData,itime);
-tit("Che la banda sia con te! by Miononno &#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000),msg("Huawei Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.0.3 by Riccardo Fanelli"),msg("Type: netmode, signal, status, antennatype");
+tit("Che la banda sia con te! by Miononno&#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.0.4 by Riccardo Fanelli"),msg("Type: netmode, signal, status, antennatype");
 ```
