@@ -3,33 +3,37 @@
 ---
 
 ## English
-### What is Huawei router hack?
-- Huawei router Hack is a JavaScript code that monitors, records, and analyzes the main radio signal parameters of the LTE (4G) and NR (5G) networks received by the modem.
-- With Huawei Hack, you can improve your modem's radio signal reception and thus improve performance simply and effectively.
-- Huawei Hack allows you to find out which channels (or bands) are available in the surrounding area and helps you find the best position for the modem to receive them or the best position, orientation, and arrangement of any external antennas.
 
-### Installing and starting Huawei Router Hack is very simple:
+### What is Huawei router hack?
+- Huawei router Hack is a JavaScript code that is used to monitor, record and analyze the main radio parameters of the LTE(4G) and NR(5G) networks captured by the modem.
+- With Huawei Hack, you can improve your modem's radio signal reception and thus improve performance.
+- Huawei Hack allows you to know the channels (or bands) present in the area and helps you find the best position for the modem or the best position, orientation and arrangement of any external antennas.
+
+### Installation and startup instructions:
 1. Create/add a new Browser Favorites/Bookmarks and name it Hack;
 2. Select all Hack JavaScript code, copy and paste it into the Bookmark URL box and save;
-3. From the browser open the page at the address http://192.168.8.1 of the router and log in;
-4. On this open Browser page load Hack from Bookmarks.
+3. From the browser open the page at the address http://192.168.8.1 of the router and log in (If necessary, recommended setting "Accessibility Mode" to on and "Login timed out" to 50 minutes);
+4. With this browser page open, load Hack from Bookmarks.
 
-- Huawei Hack was tested on a Huawei B818 4G router, Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it - Advanced v1.0.4 by Riccardo Fanelli.
+### Info
+- Huawei Hack was tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers. 
+- Base code v5.0 by miononno.it - Advanced v1.1.0 by Riccardo Fanelli.
 
 ---
 
 ## Italiano
-### What is Huawei router hack?
-- Huawei router Hack è uno codice JavaScript che monitora, registra e analizza i principali parametri del segnale radio delle reti LTE(4G) e NR(5G) captate dal modem.
-- Con Huawei Hack è possibile migliorare la ricezione del segnale radio del modem ed quindi migliorare le prestazioni in modo semplice ed efficace.
-- Huawei Hack permette di sapere quali sono i canali (o bande) presenti nella zona circostante e aiuta a trovare la migliore posizione del modem per captarle o la miglior posizione, orientamento e disposizione delle eventuali antenne esterne.
 
-### L'installazione e avvio di Huawei router Hack è semplicissimo:
+### Cos'è Huawei router hack?
+- Huawei router Hack è uno codice JavaScript che serve a monitorare, registrare e analizzare i principali parametri radio delle reti LTE(4G) e NR(5G) captate dal modem.
+- Con Huawei Hack è possibile migliorare la ricezione del segnale radio del modem ed quindi migliorare le prestazioni.
+- Huawei Hack permette di conoscere i canali (o bande) presenti nella zona e aiuta a trovare la migliore posizione per il modem o la miglior posizione, orientamento e disposizione delle eventuali antenne esterne.
+
+### Istruzioni per l'installazione e avvio:
 1. Creare/aggiungere un nuovo Segnalibro/Preferito al Browser e nominarlo Hack;
 2. Selezionare tutto il codice JavaScript Hack, copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo;
-3. Dal Browser aprire la pagina all'indirizzo http://192.168.8.1 del router e accedere;
-4. In questa pagina aperta del Browser caricare Hack dai Segnalibri.
+3. Dal Browser aprire la pagina all'indirizzo http://192.168.8.1 del router e accedere (se necessario, consigliato settare "Modalità di accessibilità" attivo e "Scadenza Accesso" a 50 minuti);
+4. Con questa pagina del browser aperta, caricare Hack dai Segnalibri.
 
-- Huawei Hack è stato testato su un router Huawei B818 4G, browser Firefox, Edge, Chrome.
-- Codice base v5.0 di miononno.it - evoluzione v1.0.4 di Riccardo Fanelli.
+### Info
+- Huawei Hack è stato testato con router Huawei B818 e B636 4G, browser Firefox, Edge, Chrome.
+- Codice base v5.0 di miononno.it - Evoluzione v1.1.0 di Riccardo Fanelli.
