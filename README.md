@@ -16,7 +16,7 @@
 4. With this browser page open, load Hack from Bookmarks.
 
 ### Info
-- Huawei Hack was tested with **Huawei B818 and B636 4G router**, Firefox, Edge, Chrome browsers. 
+- Huawei Hack was tested with _**Huawei B818 and B636 4G router**_, Firefox, Edge, Chrome browsers. 
 - Base code v5.0 by miononno.it - Advanced **v1.2.1** by Riccardo Fanelli.
 
 ---
@@ -35,7 +35,7 @@
 4. Con questa pagina del browser aperta, caricare Hack dai Segnalibri.
 
 ### Info
-- Huawei Hack è stato testato con router **Huawei B818 e B636 4G**, browser Firefox, Edge, Chrome.
+- Huawei Hack è stato testato con router _**Huawei B818 e B636 4G**_, browser Firefox, Edge, Chrome.
 - Codice base v5.0 di miononno.it - Evoluzione **v1.2.1** di Riccardo Fanelli.
 
 ---
