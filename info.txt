@@ -9,7 +9,7 @@
 - With Huawei Hack, you can improve your modem's radio signal reception and thus improve performance.
 - Huawei Hack allows you to know the channels (or bands) present in the area and helps you find the best position for the modem or the best position, orientation and arrangement of any external antennas.
 
-### Installation and startup instructions:
+### Installation and startup
 1. Create/add a new Browser Favorites/Bookmarks and name it Hack;
 2. Select all the JavaScript code from the "Huawei router Hack.js" (or "README.md") file, copy and paste it into the Bookmark URL box, and save it;
 3. From the browser open the page at the address 192.168.8.1 of the router and log in (If necessary, recommended setting "Accessibility Mode" to on and "Login timed out" to max time);
@@ -28,7 +28,7 @@
 - Con Huawei Hack è possibile migliorare la ricezione del segnale radio del modem ed quindi migliorare le prestazioni.
 - Huawei Hack permette di conoscere i canali (o bande) presenti nella zona e aiuta a trovare la migliore posizione per il modem o la miglior posizione, orientamento e disposizione delle eventuali antenne esterne.
 
-### Istruzioni per l'installazione e avvio:
+### Installazione e avvio
 1. Creare/aggiungere un nuovo Segnalibro/Preferito al Browser e nominarlo Hack;
 2. Selezionare tutto il codice JavaScript del file "Huawei router Hack.js" (o "README.md"), copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo;
 3. Dal Browser aprire la pagina all'indirizzo 192.168.8.1 del router e accedere (se necessario, consigliato settare "Modalità di accessibilità" attivo e "Scadenza Accesso" a tempo massimo);
