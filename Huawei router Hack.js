@@ -39,7 +39,7 @@ function loadcel()
     if(localStorage.getItem(stoname["cel"])===null)localStorage.setItem(stoname["cel"],JSON.stringify({}));    
     cel=JSON.parse(localStorage.getItem(stoname["cel"]));celsto=JSON.parse(JSON.stringify(cel));
     for(const[i,r]of Object.entries(cells))
-        if(!(i in cel))cel[i]=[r[0],r[1],r[2],r[3]];else msg("Double cell in memory, cell id:"+i);
+        if(!(i in cel))cel[i]=[r[0],r[1],r[2],r[3],r[4],r[5],r[6]];else msg("Double cell in memory, cell id:"+i);
 }
 function start()
 {
@@ -202,11 +202,27 @@ function Cells()
     else if(celchange)
     {
         celchange=false;c=signval["cell_id"];
-        if(!(c in cel)&&c&&c!="0"&&signval["ltemain"].slice(1)&&signval["ltemain"].slice(1)!="0")
+        if(c&&c!="0"&&signval["ltemain"].slice(1)&&signval["ltemain"].slice(1)!="0")
         {
-            cel[c]=[signval["pci"],signval["ltemain"],signval["ltemainfreq"],signval["enodeb_id"]]; 
-            celsto[c]=[signval["pci"],signval["ltemain"],signval["ltemainfreq"],signval["enodeb_id"]];
-            localStorage.setItem(stoname["cel"],JSON.stringify(celsto));
+            d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short'});
+            if(c in celsto)
+            {
+                if(signval["pci"]+signval["ltemain"]+signval["ltedlbandwidth"]+signval["ltemainfreq"]+signval["enodeb_id"]!=celsto[c][0]+celsto[c][1]+celsto[c][2]+celsto[c][3]+celsto[c][4])/*change*/
+                {
+                    i=[signval["pci"],signval["ltemain"],signval["ltedlbandwidth"],signval["ltemainfreq"],signval["enodeb_id"],"C-"+t,t];
+                    delete cel[c];delete celsto[c];
+                    cel[c]=i;celsto[c]=i;
+                }
+                else/*update*/
+                    cel[c][6]=t;celsto[c][6]=t;
+                localStorage.setItem(stoname["cel"],JSON.stringify(celsto));
+            }
+            if(!(c in cel))/*add*/
+            {
+                i=[signval["pci"],signval["ltemain"],signval["ltedlbandwidth"],signval["ltemainfreq"],signval["enodeb_id"],"A-"+t,t];
+                cel[c]=i;celsto[c]=i;
+                localStorage.setItem(stoname["cel"],JSON.stringify(celsto));
+            }
         }
     }
 }
@@ -220,12 +236,12 @@ function neighborCell()
         h="";tb.style.opacity=1;
         currnei.forEach(function(v)
         {
-            b0="---",b1="---",b2=v,b3="---";
+            b0="---",b1="---",b2=v;b3="---";
             for(const[a]of Object.entries(cel))
                 if(cel[a][0]==v)
                 {
                     i=b3=="---"?"":"*";/*if double*/
-                    b0=cel[a][3]+i;b1=cel[a][1]+i;b2+=i;b3=".."+a.slice(-4);
+                    b0=cel[a][4]+i;b1=cel[a][1]+i;b2=v+i;b3=".."+a.slice(-4)+i;
                 }
             if(neistatus==1)
                 h+="<tr><td>"+b0+"</td><td>"+b1+"</td><td>"+b2+"</td></tr>";
@@ -487,14 +503,14 @@ function clickTime()
 }
 function clickInfo()
 {
-    alert("--- General technical information\nRSRP: Useful signal strength of the cell to which you are connected.\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\nSINR: Explicit signal quality from the ratio of the useful signal strength to interference+noise strengths.\nCQI / Signal: Signal quality evaluation calculated by the modem and sent to the BTS to adjusts the signal modulation and speed / Signal quality evaluation calculated by balancing the underlying parameters.\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an antenna / Short id. num. of a cell in a limited area.\nBTS / ENB Id: Base tower station / Id. num. for 2nd advanced node for LTE of a BTS.\n\n--- SIGNAL QUALITY BALANCED (to change edit the Hack script)\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_rssi="+signal_balance_rssi+"%\n\n--- SIGNAL VALUE LIMITS (to change edit the Hack script)\nmax_rsrp="+max_rsrp+"dBm min_rsrp="+min_rsrp+"dBm\nmax_sinr="+max_sinr+"dB min_sinr="+min_sinr+"dB\nmax_rsrq="+max_rsrq+"dB min_rsrq="+min_rsrq+"dB\nmax_rssi="+max_rssi+"dBm min_rssi="+min_rssi+"dBm\n\n--- BTS LOCATIONS (to add edit the Hack script)\n...\n\n--- KNOWN CELLS (to add edit the Hack script)\n...");
+    alert("--- General technical information\nRSRP: Useful signal strength of the cell to which you are connected.\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\nSINR: Explicit signal quality from the ratio of the useful signal strength to interference+noise strengths.\nCQI / Signal: Signal quality evaluation calculated by the modem and sent to the BTS to adjusts the signal modulation and speed / Signal quality evaluation calculated by balancing the underlying parameters.\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an antenna / Short id. num. of a cell in a limited area.\nBTS / ENB Id: Base tower station / Id. num. for 2nd advanced node for LTE of a BTS.\nEARFCN: Conventional and unique identification number used to define and identify the uplink or downlink frequency.\n\n--- SIGNAL QUALITY BALANCED (to change edit the Hack script)\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_rssi="+signal_balance_rssi+"%\n\n--- SIGNAL VALUE LIMITS (to change edit the Hack script)\nmax_rsrp="+max_rsrp+"dBm min_rsrp="+min_rsrp+"dBm\nmax_sinr="+max_sinr+"dB min_sinr="+min_sinr+"dB\nmax_rsrq="+max_rsrq+"dB min_rsrq="+min_rsrq+"dB\nmax_rssi="+max_rssi+"dBm min_rssi="+min_rssi+"dBm\n\n--- BTS LOCATIONS (to add edit the Hack script)\n...\n\n--- KNOWN CELLS (to add edit the Hack script)\n...");
 }
 function clickStorage(tipo,b)
 {
     sn=stoname[tipo];
     if(tipo=="rec")
     {
-        wwi=1660;
+        wwi=1700;
         savq=["Please input new record info (optional)."],savl=[35];
         h1="Records:",h2="For analysis of recordings, select table, copy and paste it into an Excel sheet or \"Export\" in .txt format.";
         re1=[["","Date and Time","Info","Network","Antennas","ENB Id","Main","Count-Time","RSRP","","","SINR","","","RSRQ","","","RSSI","Signal","","","CQI","","","Neighbor PCI (LTE)"],["","","","","","","","","Med","Max","Min","Med","Max","Min","Med","Max","Min","Med","Med","Max","Min","Med","Max","Min","1st(n) 2nd(n) 3rd(n) 4th(n)"]];
@@ -503,9 +519,9 @@ function clickStorage(tipo,b)
     }
     if(tipo=="bts")
     {
-        wwi=800;
+        wwi=900;
         savq=["Please input new BTS location name (optional).\nTo get info about BTS locations, search for 'Enb Id' on the websites cellmapper.net or lteitaly.it.","Input availables BTS bands (optional)."],savl=[35,35];
-        h1="Locations:",h2="To manually save locations, add them to the bottom of the Hack script (grey in table).<br>To get info about BTS locations search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
+        h1="Locations:",h2="To manually save locations, add it to the bottom of the Hack script (grey in table).<br>To get info about BTS locations search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
         re1=[["ENB Id","BTS location name","Availables bands"]];
         re2=JSON.parse(JSON.stringify(bts_location));
         re3=JSON.parse(localStorage.getItem(sn));
@@ -513,23 +529,20 @@ function clickStorage(tipo,b)
     }
     if(tipo=="cel")
     {
-        wwi=800;
-        h1="Cells:",h2="Saving and updating reference data for cells is automatic when connecting to them; to manually save cells, add them to the bottom of the Hack script (grey in table); <b>the \"PCI\" number may be subject to change by the network operator and may be (incorrectly) duplicated</b>.<br>Use \"PCI\" and \"Frequency download\" parameters to set (if available) \"192.168.8.1/->(Accessibility mode off)->Advanced->System->System Settings->Developer options->Band selection\".<br>To get info about cells (not always correct) search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a> or <a href='https://celltracker.it'target='_blank'>Celltracker.it</a>.";
-        re1=[["Cell Id","PCI","Band","Frequency dl","ENB Id","Location"]];
+        wwi=900;
+        h1="Cells:",h2="Saving and updating reference data for cells is automatic when connecting to it as the main band; to manually save cells, add it to the bottom of the Hack script (grey in table); <b>the \"PCI\" number may be subject to change by the network operator and may be duplicated and not correctly identifiable in neighboring cells</b>.<br>Use \"PCI\" and \"EARFCN download\" parameters to set (if available) \"192.168.8.1/->(Accessibility mode off)->Advanced->System->System Settings->Developer options->Band selection\".<br>To get info about cells (not always correct) search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://sqimway.com/'target='_blank'>sqimway.com/</a>.";
+        re1=[["Cell Id","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Added/Changed","Last used"]];
         re2=JSON.parse(JSON.stringify(cells));
         re3=JSON.parse(localStorage.getItem(sn));
-        i=[];        
         for(const[a]of Object.entries(re2))
         {
-            if(re2[a][3] in bts)re2[a].push(bts[re2[a][3]][0]);
-            else{re2[a].push("<button onclick='window.opener.clickStorage(\"bts\",true)'>Add Location</button>");re2[a][3]="<a id='link' target='_blank' href='"+link+re2[a][3].replace(/^0+/,"")+"'><span id='enodeb_id'>"+re2[a][3]+"</span></a>";}
-            if(i.includes(re2[a][0]))re2[a][0]+="*";else i.push(re2[a][0]);
+            if(re2[a][4] in bts)re2[a].splice(5,0,bts[re2[a][4]][0]);
+            else{re2[a].splice(5,0,"<button onclick='window.opener.clickStorage(\"bts\",true)'>Add Location</button>");re2[a][4]="<a id='link' target='_blank' href='"+link+re2[a][4].replace(/^0+/,"")+"'><span id='enodeb_id'>"+re2[a][4]+"</span></a>";}
         }
         for(const[a]of Object.entries(re3))
         {
-            if(re3[a][3] in bts)re3[a].push(bts[re3[a][3]][0]);
-            else{re3[a].push("<button onclick='window.opener.clickStorage(\"bts\",true)'>Add Location</button>");re3[a][3]="<a id='link' target='_blank' href='"+link+re3[a][3].replace(/^0+/,"")+"'><span id='enodeb_id'>"+re3[a][3]+"</span></a>";}
-            if(i.includes(re3[a][0]))re3[a][0]+="*";else i.push(re3[a][0]);
+            if(re3[a][4] in bts)re3[a].splice(5,0,bts[re3[a][4]][0]);
+            else{re3[a].splice(5,0,"<button onclick='window.opener.clickStorage(\"bts\",true)'>Add Location</button>");re3[a][4]="<a id='link' target='_blank' href='"+link+re3[a][4].replace(/^0+/,"")+"'><span id='enodeb_id'>"+re3[a][4]+"</span></a>";}
         }
     }
     function tab()
@@ -537,8 +550,8 @@ function clickStorage(tipo,b)
         h="";
         for(const[a]of Object.entries(re1)){h+="<tr bgcolor='B0E0E6'>";for(const[,c]of Object.entries(re1[a]))h+="<td>"+c+"</td>";h+="</tr>";}
         for(const[a]of Object.entries(re2)){h+="<tr bgcolor='#C0C0C0'><td>"+a+(a in re3?"*":"")+"</td>";for(const[,c]of Object.entries(re2[a]))h+='<td>'+c+'</td>';h+='</tr>';}
-        for(const[a]of Object.entries(re3)){h+="<tr><td bgcolor='B0E0E6'><input type='checkbox'name='c'value='"+a+"'> "+a+(a in re2?"*":"")+"</td>";for(const[,c]of Object.entries(re3[a]))h+='<td>'+c+'</td>';h+='</tr>'}
-        h+="<tr><td bgcolor='B0E0E6'><input id='cc'type='checkbox'onclick='c=document.getElementsByName(\"c\");for(i in c)c[i].checked=this.checked;'></td><td><button onclick='delsto()'>Delete</button></td></tr>";
+        for(const[a]of Object.entries(re3)){h+="<tr><td bgcolor='B0E0E6'>"+a+(a in re2?"*":"")+" <input type='checkbox'name='c'value='"+a+"'></td>";for(const[,c]of Object.entries(re3[a]))h+='<td>'+c+'</td>';h+='</tr>'}
+        h+="<tr><td bgcolor='B0E0E6' style='text-align:right'><input id='cc'type='checkbox'onclick='c=document.getElementsByName(\"c\");for(i in c)c[i].checked=this.checked;'></td><td><button onclick='delsto()'>Delete</button></td></tr>";
         t=document.createElement('table'),t.innerHTML=h;tb=w.document.getElementById('tb'),tb.replaceChildren(t);
     };
     w=window.open("","Hack store","width="+wwi+",height=800");w.focus();w.document.body.innerHTML="";
@@ -549,8 +562,8 @@ function clickStorage(tipo,b)
             {
                 delete re3[c[i].value];
                 if(tipo=="rec")localStorage.setItem(sn,JSON.stringify(re3.filter(n=>n!=null)));
-                if(tipo=="bts"){localStorage.setItem(sn,JSON.stringify(re3));loadbts(sn)}
-                if(tipo=="cel"){localStorage.setItem(sn,JSON.stringify(re3));loadcel(sn)}
+                if(tipo=="bts"){localStorage.setItem(sn,JSON.stringify(re3));loadbts()}
+                if(tipo=="cel"){localStorage.setItem(sn,JSON.stringify(re3));loadcel()}
             }
         w.document.getElementById("cc").checked=false;
         tab();
@@ -560,7 +573,7 @@ function clickStorage(tipo,b)
         r="";re1.forEach(function(c){r+=c+"\n"});b=new Blob([(r+"\n- In script -\n"+JSON.stringify(re2)+"\n\n- In local storage -\n"+JSON.stringify(re3)).replaceAll("],","],\n")],{type:"text/plain"});
         l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=sn+".txt";l.click();
     };
-    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>* Old or double.<br><b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
+    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>* Douplicate.<br><b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
     tab();
     if(b)setTimeout(()=>
     {
@@ -800,7 +813,7 @@ qp=signal_balance_rsrp*(1-signal_volatility_rsrp/(max_rsrp-min_rsrp));qq=signal_
 totq=(qp+qq+qr+qi)/100;
 balance_rsrp=qp/totq;balance_rsrq=qq/totq;balance_sinr=qr/totq;balance_rssi=qi/totq;
 /*--- BTS LOCATION ---
-ADD or DELETE BTS locations (optional, get in lteitaly.it, cellmapper.net or other)*/
+ADD or DELETE BTS locations (optional(opt), get in lteitaly.it, cellmapper.net or other)*/
 var bts_location={/*
 "0eNB Id":["nr.eNB,BTS loc.,distance,more(opt)" ,"Availables bands(opt)"],*/
 "0432259":["Salve campo di calcio"              ,"B7 B1 B3 B20 N3 N38 N78"],
@@ -815,11 +828,11 @@ var bts_location={/*
 "0363379":["2:Balanzano 4,6km"                  ,"B1+"],
 },bts;
 /*--- KNOWN CELLS ---
-ADD or DELETE cell (optional, get in cellmapper.net or other)*/
+ADD or DELETE cell (optional(opt), get in cellmapper.net or other)*/
 var cells={/*
-"Cell"    :["PCI(opt)","band(opt)","frequency dl(opt)","0+ENB(opt)"],*/
-"92722183":["458"     ,"B20"      ,""                 ,"0362196"],
-"92770056":["309"     ,"B20"      ,""                 ,"0362383"],
+"Cell"    :["PCI(opt)","band(opt)","bandwidth dl(opt)","EARFCN dl(opt)","0+ENB(opt)","",""],*/
+"92722183":["458"     ,"B20"      ,"10Mhz"            ,"6200"          ,"0362196"   ,"",""],
+"92770056":["309"     ,"B20"      ,""                 ,""              ,"0362383"   ,"",""],
 },cel,celsto;
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=window.setInterval(currentData,itime);
-tit("Che la banda sia con te! by Miononno&#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.2.0 by Riccardo Fanelli"),msg("Tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers"),msg("Type: netmode, signal, status, antennatype");
+tit("Che la banda sia con te! by Miononno&#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.2.1 by Riccardo Fanelli"),msg("Tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers"),msg("Type: netmode, signal, status, antennatype");
