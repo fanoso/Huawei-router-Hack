@@ -12,12 +12,12 @@
 ### Installation and startup instructions:
 1. Create/add a new Browser Favorites/Bookmarks and name it Hack;
 2. Select all the JavaScript code from the "Huawei router Hack.js" (or "README.md") file, copy and paste it into the Bookmark URL box, and save it;
-3. From the browser open the page at the address http://192.168.8.1 of the router and log in (If necessary, recommended setting "Accessibility Mode" to on and "Login timed out" to max time);
+3. From the browser open the page at the address 192.168.8.1 of the router and log in (If necessary, recommended setting "Accessibility Mode" to on and "Login timed out" to max time);
 4. With this browser page open, load Hack from Bookmarks.
 
 ### Info
-- Huawei Hack was tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it - Advanced v1.2.1 by Riccardo Fanelli.
+- Huawei Hack was tested with **Huawei B818 and B636 4G router**, Firefox, Edge, Chrome browsers. 
+- Base code v5.0 by miononno.it - Advanced **v1.2.1** by Riccardo Fanelli.
 
 ---
 
@@ -31,9 +31,9 @@
 ### Istruzioni per l'installazione e avvio:
 1. Creare/aggiungere un nuovo Segnalibro/Preferito al Browser e nominarlo Hack;
 2. Selezionare tutto il codice JavaScript del file "Huawei router Hack.js" (o "README.md"), copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo;
-3. Dal Browser aprire la pagina all'indirizzo http://192.168.8.1 del router e accedere (se necessario, consigliato settare "Modalità di accessibilità" attivo e "Scadenza Accesso" a tempo massimo);
+3. Dal Browser aprire la pagina all'indirizzo 192.168.8.1 del router e accedere (se necessario, consigliato settare "Modalità di accessibilità" attivo e "Scadenza Accesso" a tempo massimo);
 4. Con questa pagina del browser aperta, caricare Hack dai Segnalibri.
 
 ### Info
-- Huawei Hack è stato testato con router Huawei B818 e B636 4G, browser Firefox, Edge, Chrome.
-- Codice base v5.0 di miononno.it - Evoluzione v1.2.1 di Riccardo Fanelli.
+- Huawei Hack è stato testato con router **Huawei B818 e B636 4G**, browser Firefox, Edge, Chrome.
+- Codice base v5.0 di miononno.it - Evoluzione **v1.2.1** di Riccardo Fanelli.
