@@ -16,8 +16,8 @@
 4. With this browser page open, load Hack from Bookmarks.
 
 ### Info
-- Huawei Hack was tested with __**Huawei B818 and B636 4G router**__, Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it - Advanced __**v1.2.1**__ by Riccardo Fanelli.
+- Huawei Hack was tested with **Huawei B818 and B636 4G router**, Firefox, Edge, Chrome browsers. 
+- Base code v5.0 by miononno.it - Advanced **v1.3.0** by Riccardo Fanelli.
 
 ---
 
@@ -35,8 +35,8 @@
 4. Con questa pagina del browser aperta, caricare Hack dai Segnalibri.
 
 ### Info
-- Huawei Hack è stato testato con router __**Huawei B818 e B636 4G**__, browser Firefox, Edge, Chrome.
-- Codice base v5.0 di miononno.it - Evoluzione __**v1.2.1**__ di Riccardo Fanelli.
+- Huawei Hack è stato testato con router **Huawei B818 e B636 4G**, browser Firefox, Edge, Chrome.
+- Codice base v5.0 di miononno.it - Evoluzione **v1.3.0** di Riccardo Fanelli.
 
 ---
 
@@ -100,18 +100,19 @@ function start()
             {
                 if("22201"==signval["plmn"])signval["plmn"]="2221";
                 if("22299"==signval["plmn"])signval["plmn"]="22288";
-                link="https://lteitaly.it/internal/map.php#bts="+signval["plmn"]+".";
+                link="https://lteitaly.it/internal/map.php%23bts="+signval["plmn"]+".";
             }
             else
                 document.getElementById("link").setAttribute("href","https://www.cellmapper.net");
             /*defined lte/nr/nrrssi/enodeb_id*/
             defined["nr"]="undefined"!=typeof extractXML("nrrsrp",x.responseText),defined["lte"]="undefined"!=typeof extractXML("rsrp",x.responseText),defined["nrrssi"]="undefined"!=typeof extractXML("nrrssi",x.responseText),defined["enodeb_id"]="undefined"!=typeof extractXML("enodeb_id",x.responseText);
             ["lte","nr"].forEach(function(b){if(defined[b])defltenr.push(b)});
-            for(e1=document.getElementsByName("lte"),l=e1.length,i=0;i<l;i++)/*set HTMLpage*/
-                e1[i].style.display=defined["lte"]?"block":"none";
-            for(e2=document.getElementsByName("nr"),l=e2.length,i=0;i<l;i++)
-                e2[i].style.display=defined["nr"]?"block":"none";
-            document.getElementById("force").style.display=defined["nr"]&&defined["lte"]?"block":"none";
+            for(e=document.getElementsByName("lte"),l=e.length,i=0;i<l;i++)/*set HTMLpage*/
+                e[i].style.display=defined["lte"]?"block":"none";
+            for(e=document.getElementsByName("nr"),l=e.length,i=0;i<l;i++)
+                e[i].style.display=defined["nr"]?"block":"none";
+            for(e=document.getElementsByName("net"),l=e.length,i=0;i<l;i++)
+                e[i].style.display=defined["nr"]&&defined["lte"]?"inline-block":"none";
         }
         else
             msg("Err Signal:"+x.status);
@@ -125,16 +126,17 @@ function currentData()
 	if(suspend)return;
     try{document.getElementById("dhcp_mask").style.display="block",document.getElementById("dhcp_dns").style.display="block"}catch(e){}
 /*  HUAWEI VARIABLES & FUNCTION
-    start()             Huawei->(indipendent)plmn,nrrsrp,rsrp,nrrssi,enodeb_id*/
+    start()             /*Huawei->(indipendent)plmn,nrrsrp,rsrp,nrrssi,enodeb_id*/
     Promise.all([
-        getSignal(), /*Huawei->nrrsrp,nrrsrq,nrsinr,(nrrssi),(nrcqi0),(lte)rsrp,(lte)rsrq,(lte)sinr,(lte)rssi,(lte)cqi0,nrdlbandwidth,nrulbandwidth,(lte)dlbandwidth,(lte)ulbandwidth,band,nrearfcn,(lte)earfcn,enodeb_id,cell_id,pci,nei_cellid->..*/
+        getSignal(),    /*Huawei->nrrsrp,nrrsrq,nrsinr,(nrrssi),(nrcqi0),(lte)rsrp,(lte)rsrq,(lte)sinr,(lte)rssi,(lte)cqi0,nrdlbandwidth,nrulbandwidth,
+                        (lte)dlbandwidth,(lte)ulbandwidth,band,nrearfcn,(lte)earfcn,enodeb_id,cell_id,pci,nei_cellid->..*/
         getStatus(),    /*Huawei->(LTE band aggregation status)CurrentNetworkTypeEx->is4gp->..*/
         getAntenna(),   /*Huawei->(antennas status)antenna1type+antenna2type->..*/
         getNetmode(),   /*Huawei->(allowed bands status,indipendent)LTEBand*/
     ]).then(function()
     {         
-        setENBMainBTS();/*..<-band,nrearfcn,lteearfcn,enodeb_id,cell_id<-Huawei*/
-        Cells();        /*..<-pci,enodeb_id,cell_id<-Huawei*/ 
+        setENBMainBTS();/*..<-band,nrearfcn,(lte)earfcn,enodeb_id,cell_id<-Huawei*/
+        Cells();        /*..<-pci,enodeb_id,cell_id,(lte)dlbandwidth<-Huawei*/ 
         neighborCell(); /*..<-nei_cellid<-Huawei*/  
         medControl();   /*..<-enodeb_id<-Huawei*/
         medCalc();
@@ -158,13 +160,13 @@ function getSignal()
         {
             if(200===x.status)
             {
-                signal=d=x.responseText;/*get&view and get*/
-                signnam.forEach(function(b){signval[b]=extractXML(b.replace("lte",""),d);ha(b,signval[b])});
-                signnam2.forEach(function(b){signval[b]=extractXML(b.replace("lte",""),d)});
+                signal=d=x.responseText;
+                signnam.forEach(function(b){signval[b]=extractXML(b.replace("lte",""),d);ha(b,signval[b])});/*get&view*/
+                signnam2.forEach(function(b){signval[b]=extractXML(b.replace("lte",""),d)});/*get*/
                 if(defined["nr"]&&!defined["nrrssi"]){ha("nrrssi","");signval["nrrssi"]="0"}
-                for(i=defined["nr"]?0:5,l=defined["lte"]?10:5;i<l;i++)/*convert str->num||num-error*/
+                for(i=defined["nr"]?0:7,l=defined["lte"]?12:5;i<l;i++)/*convert str->num||num-error*/
                 {
-                    currval[signnam[i]]=parseFloat(signval[signnam[i]].replace(/[^0-9\.\-]/g,"")||-999)+(signval[signnam[i]].includes("gt")?1:signval[signnam[i]].includes("lt")?-1:0);
+                    if(i==5)i=7;currval[signnam[i]]=parseFloat(signval[signnam[i]].replace(/[^0-9\.\-]/g,"")||-999)+(signval[signnam[i]].includes("gt")?1:signval[signnam[i]].includes("lt")?-1:0);
                     if(currval[signnam[i]]>999||currval[signnam[i]]<-999)currval[signnam[i]]=-999;
                     if(signval[signnam[i]].includes("&")||(currval[signnam[i]]==-999&&!signnam[i].includes("cqi0")))msg(signnam[i]+":"+signval[signnam[i]]);
                 }
@@ -206,29 +208,27 @@ function setENBMainBTS()
     if(!defined["enodeb_id"])/*set&view ENB&link*/
         mp=signval["cell_id"].indexOf("-"),mp>0?signval["enodeb_id"]=Number(signval["cell_id"].substr(0,mp)):(hex=Number(signval["cell_id"]).toString(16),hex2=hex.substring(0,hex.length-2),signval["enodeb_id"]=parseInt(hex2,16).toString().padStart(7,"0"));
     ha("enodeb_id",signval["enodeb_id"]);if(state==222)document.getElementById("link").setAttribute("href",link+signval["enodeb_id"].replace(/^0+/,""));
-    ba=signval["band"];/*set&view main band & frequency dl band*/
+    ba=signval["band"];/*set&view mainband&EARFCN*/
     defltenr.forEach(function(b)
     {
-        bb=b=="lte"?"B":"N";signval[b+"main"]="";signval[b+"mainfreq"]="";
+        bb=b=="lte"?"B":"N";signval[b+"main"]="";
+        if(signval[b+"earfcn"])/*EARFCN=LTE&NR download&upload->"<..earfcn>DL:.. UL:..</..earfcn>"*/
+            {s=signval[b+"earfcn"].split(" ");signval[b+"earfcndl"]=s[0].substr(3);signval[b+"earfcnul"]=s[1].substr(3)}
+        else
+            {signval[b+"earfcndl"]="";signval[b+"earfcnul"]=""}
         if(b=="lte"&&!isNaN(ba))signval[b+"main"]=bb+ba;/*band=LTE->"<band>3</band>"*/
-        if(!signval[b+"main"]&&ba.includes("("))/*band&frequency=LTE&NR->1st->B&N->"<band>..@3100(B7)..@636666(N78)..</band>"*/
+        if(!signval[b+"main"]&&ba.includes("("))/*band=LTE&NR->1st->B&N->"<band>..@3100(B7)..@636666(N78)..</band>"*/
             for(const a of ba.match(/(?:\()[^\(\)]*?(?:\))/g))
                 if((a.includes(bb))&&(/\d/).test(a))
-                {
-                    signval[b+"main"]=bb+a.replace(/[^0-9]/g,"");/*main*/
-                    signval[b+"mainfreq"]=ba.substring(ba.indexOf("@",ba.indexOf("("+bb)-8)+1,ba.indexOf("("+bb));/*main frequency*/
-                    break;
-                }
-        if(!signval[b+"main"])/*band=LTE&NR->UL->"<..earfcn>DL:.. UL:..</..earfcn>"*/
-        {
-            s=signval[b.replace("lte","")+"earfcn"].split("UL:")[1];
-            for(const[k,n] of Object.entries(earfcn[b]))
-                if("undefined"!=typeof n)if(s>n[2]&&s<n[3]){signval[b+"main"]=bb+k.slice(2);break}
-        }
-        if(!signval[b+"main"])signval[b+"main"]="---";
+                    {signval[b+"main"]=bb+a.replace(/[^0-9]/g,"");break}
+        if(!signval[b+"main"])/*band=LTE&NR->EARFCN LTE&NR download&upload"*/
+            for(const[k,n] of Object.entries(earfcn["eur"][b]))
+                if("undefined"!=typeof n)
+                    if(signval[b+"earfcndl"]>=n[0]&&signval[b+"earfcndl"]<=n[1]&&signval[b+"earfcnul"]>=n[2]&&signval[b+"earfcnul"]<=n[3])
+                        {signval[b+"main"]=bb+k;break}
         ha(b+"main",signval[b+"main"]);
         if(!recstatus[b]){ha(b+"band",signval[b+"main"]);ha(b+"enb",signval["enodeb_id"])}/*view enb&main*/
-        enbmainchange[b]=enbmainold[b]!=signval["enodeb_id"]+signval[b+"main"];enbmainold[b]=signval["enodeb_id"]+signval[b+"main"];/*set enb+main continuity*/
+        enbmainchange[b]=enbmainold[b]!=signval["enodeb_id"]+signval[b+"main"];enbmainold[b]=signval["enodeb_id"]+signval[b+"main"];/*set enb+main continuity(cell_id only lte)*/
     });
     b=document.getElementById("btsb").style;/*view BTSloc*/
 	if(signval["enodeb_id"] in bts)
@@ -243,35 +243,40 @@ function setENBMainBTS()
         b.display="none";
     }
 }
-function Cells()
+function Cells()/*only LTE*/
 {
-    if(enbmainchange["lte"])celchange=true;/*auto save at 2nd interval*/
-    else if(celchange)
+    defltenr.forEach(function(b)
     {
-        celchange=false;c=signval["cell_id"];
-        if(c&&c!="0"&&signval["ltemain"].slice(1)&&signval["ltemain"].slice(1)!="0")
+        if(enbmainchange[b])celchange[b]=true;/*auto save at 2nd interval*/
+        else if(celchange[b]&&!enbmainchange[b])
         {
-            d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short'});
-            if(c in celsto)
+            celchange[b]=false;
+            if(b=="lte"){p="";c=signval["cell_id"]}else{p="scc_";c=signval["enodeb_id"]+"-"+signval[p+"pci"].slice(2)}/*NR="scc_pci"&not cell_id*/
+            if(c&&c!="0"&&signval[b+"main"].slice(1)&&signval[b+"main"].slice(1)!="0")
             {
-                if(signval["pci"]+signval["ltemain"]+signval["ltedlbandwidth"]+signval["ltemainfreq"]+signval["enodeb_id"]!=celsto[c][0]+celsto[c][1]+celsto[c][2]+celsto[c][3]+celsto[c][4])/*change*/
+                d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short'});
+                if(c in celsto)
                 {
-                    i=[signval["pci"],signval["ltemain"],signval["ltedlbandwidth"],signval["ltemainfreq"],signval["enodeb_id"],"C-"+t,t];
-                    delete cel[c];delete celsto[c];
-                    cel[c]=i;celsto[c]=i;
+                    a="";if(celsto[c][0]!=signval[p+"pci"])a=",1";if(celsto[c][1]!=signval[b+"main"])a+=",2";if(celsto[c][2]!=signval[b+"dlbandwidth"])a+=",3";if(celsto[c][3]!=signval[b+"earfcndl"])a+=",4";if(celsto[c][4]!=signval["enodeb_id"])a+=",5";
+                    if(a)/*change*/
+                    {
+                        i=[signval[p+"pci"],signval[b+"main"],signval[b+"dlbandwidth"],signval[b+"earfcndl"],signval["enodeb_id"],"C"+a.slice(1)+"-"+t,t];
+                        delete cel[c];delete celsto[c];
+                        cel[c]=i;celsto[c]=i;
+                    }
+                    else/*update*/
+                        cel[c][6]=t;celsto[c][6]=t;
+                    localStorage.setItem(stoname["cel"],JSON.stringify(celsto));
                 }
-                else/*update*/
-                    cel[c][6]=t;celsto[c][6]=t;
-                localStorage.setItem(stoname["cel"],JSON.stringify(celsto));
-            }
-            if(!(c in cel))/*add*/
-            {
-                i=[signval["pci"],signval["ltemain"],signval["ltedlbandwidth"],signval["ltemainfreq"],signval["enodeb_id"],"A-"+t,t];
-                cel[c]=i;celsto[c]=i;
-                localStorage.setItem(stoname["cel"],JSON.stringify(celsto));
+                if(!(c in cel))/*add*/
+                {
+                    i=[signval[p+"pci"],signval[b+"main"],signval[b+"dlbandwidth"],signval[b+"earfcndl"],signval["enodeb_id"],"A-"+t,t];
+                    cel[c]=i;celsto[c]=i;
+                    localStorage.setItem(stoname["cel"],JSON.stringify(celsto));
+                }
             }
         }
-    }
+    });
 }
 function neighborCell()
 {
@@ -445,7 +450,7 @@ function barGraph()
                         h+='<line x1="'+px+'"y1="'+(py-1)+'"x2="'+px+'"y2="'+py+'"stroke="black"stroke-width="'+gtm+'"/>';
                     }
                 }
-                document.getElementById("b"+p).innerHTML='<svg version="1.1"viewBox="0 0 '+gw+' '+gh+'"width="'+gw+'"height="'+gh+'"preserveAspectRatio="xMaxYMax slice"style="border:1px solid #ccc;padding:1px;margin:-6px 0 -10px;width:'+gw+'px">'+h+'</svg>';
+                document.getElementById("b"+p).innerHTML='<svg version="1.1"viewBox="0 0 '+gw+' '+gh+'"width="'+gw+'"height="'+gh+'"preserveAspectRatio="xMaxYMax slice"style="border:1px solid %23ccc;padding:1px;margin:-6px 0 -10px;width:'+gw+'px">'+h+'</svg>';
             }
         }
     }
@@ -483,7 +488,7 @@ function clickRecMed(a,b)
         recant=antenna1type+"-"+antenna2type;
         for(r=[["","","",""],[0,0,0,0]],i=0;i<4;i++)for(const[k,v]of Object.entries(recnumnei[b]))if(!r[0].includes(k)&&v>r[1][i]){r[0][i]=k;r[1][i]=v}
         for(recneires[b]="",i=0;i<4;i++)if(r[0][i])recneires[b]+=r[0][i]+"("+r[1][i]+") ";recneires[b]=recneires[b].slice(0,-1);
-        if(neistatus==2)ha("neirec"+b,"RecNum "+(b=="nr"?"NR ":"")+"PCI:<span class='val'>"+recneires[b]+"</span>");
+        if(neistatus==2)ha("neirec"+b,"RecNum "+(b=="nr"?""/*"NR "*/:"")+"PCI:<span class='val'>"+recneires[b]+"</span>");
     }
 	else
 	{
@@ -550,7 +555,8 @@ function clickTime()
 }
 function clickInfo()
 {
-    alert("--- General technical information\nRSRP: Useful signal strength of the cell to which you are connected.\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\nSINR: Explicit signal quality from the ratio of the useful signal strength to interference+noise strengths.\nCQI / Signal: Signal quality evaluation calculated by the modem and sent to the BTS to adjusts the signal modulation and speed / Signal quality evaluation calculated by balancing the underlying parameters.\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an antenna / Short id. num. of a cell in a limited area.\nBTS / ENB Id: Base tower station / Id. num. for 2nd advanced node for LTE of a BTS.\nEARFCN: Conventional and unique identification number used to define and identify the uplink or downlink frequency.\n\n--- SIGNAL QUALITY BALANCED (to change edit the Hack script)\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_rssi="+signal_balance_rssi+"%\n\n--- SIGNAL VALUE LIMITS (to change edit the Hack script)\nmax_rsrp="+max_rsrp+"dBm min_rsrp="+min_rsrp+"dBm\nmax_sinr="+max_sinr+"dB min_sinr="+min_sinr+"dB\nmax_rsrq="+max_rsrq+"dB min_rsrq="+min_rsrq+"dB\nmax_rssi="+max_rssi+"dBm min_rssi="+min_rssi+"dBm\n\n--- BTS LOCATIONS (to add edit the Hack script)\n...\n\n--- KNOWN CELLS (to add edit the Hack script)\n...");
+    alert("--- Definitions ---\n\nRSRP: Useful signal strength of the cell to which you are connected.\n\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\n\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\n\nSINR: Explicit signal quality from the ratio of the useful signal strength to interference+noise strengths.\n\nCQI / Signal: Signal quality evaluation calculated by the modem and sent to the BTS to adjusts the signal modulation and speed / Signal quality evaluation calculated by balancing the underlying parameters.\n\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an antenna / Short id. num. of a cell in a limited area.\n\nBTS / ENB Id: Base tower station / Id. num. for 2nd advanced node for LTE of a BTS.\n\nEARFCN: Conventional and unique identification number used to define and identify the uplink or downlink frequency.");
+    alert("--- Parameters ---\n\n--- SIGNAL QUALITY BALANCED (to change edit the Hack script)\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_rssi="+signal_balance_rssi+"%\n\n--- SIGNAL VALUE LIMITS (to change edit the Hack script)\nmax_rsrp="+max_rsrp+"dBm min_rsrp="+min_rsrp+"dBm\nmax_sinr="+max_sinr+"dB min_sinr="+min_sinr+"dB\nmax_rsrq="+max_rsrq+"dB min_rsrq="+min_rsrq+"dB\nmax_rssi="+max_rssi+"dBm min_rssi="+min_rssi+"dBm\n\n--- BTS LOCATIONS (to add edit the Hack script)\n...(list)\n\n--- KNOWN CELLS (to add edit the Hack script)\n...(list)\n\n--- GEOGRAPHICAL AREA (to add or change edit the Hack script)\ngeo_area="+geo_area.toUpperCase()+"\n\n--- Info ---\n\nBand and cell parameters if not specified are LTE.\nHack script processes and exposes the API parameters made available by the router.\nTested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers.");
 }
 function clickStorage(tipo,b)
 {
@@ -559,8 +565,8 @@ function clickStorage(tipo,b)
     {
         wwi=1700;
         savq=["Please input new record info (optional)."],savl=[35];
-        h1="Records:",h2="For analysis of recordings, select table, copy and paste it into an Excel sheet or \"Export\" in .txt format.";
-        re1=[["","Date and Time","Info","Network","Antennas","ENB Id","Main","Count-Time","RSRP","","","SINR","","","RSRQ","","","RSSI","Signal","","","CQI","","","Neighbor PCI (LTE)"],["","","","","","","","","Med","Max","Min","Med","Max","Min","Med","Max","Min","Med","Med","Max","Min","Med","Max","Min","1st(n) 2nd(n) 3rd(n) 4th(n)"]];
+        h0="";h1="Records:",h2="For analysis of recordings, select table, copy and paste it into an Excel sheet or \"Export\" in .txt format.";
+        re1=[["","Date and Time","Info","Network","Antennas","ENB Id","Main","Count-Time","RSRP","","","SINR","","","RSRQ","","","RSSI","Signal","","","CQI","","","Neighbor PCI"],["","","","",(defined["nr"]&&defined["lte"]?"5G":""),"","","","Med","Max","Min","Med","Max","Min","Med","Max","Min","Med","Med","Max","Min","Med","Max","Min","1st(n) 2nd(n) 3rd(n) 4th(n)"]];
         re2=[];
         if(localStorage.getItem(sn)===null)localStorage.setItem(sn,JSON.stringify([]));re3=JSON.parse(localStorage.getItem(sn));
     }
@@ -568,7 +574,7 @@ function clickStorage(tipo,b)
     {
         wwi=900;
         savq=["Please input new BTS location name (optional).\nTo get info about BTS locations, search for 'Enb Id' on the websites cellmapper.net or lteitaly.it.","Input availables BTS bands (optional)."],savl=[35,35];
-        h1="Locations:",h2="To manually save locations, add it to the bottom of the Hack script (grey in table).<br>To get info about BTS locations search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
+        h0="";h1="Locations:",h2="To manually save locations, add it to the bottom of the Hack script (grey in table).<br>To get info about BTS locations search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
         re1=[["ENB Id","BTS location name","Availables bands"]];
         re2=JSON.parse(JSON.stringify(bts_location));
         re3=JSON.parse(localStorage.getItem(sn));
@@ -577,10 +583,10 @@ function clickStorage(tipo,b)
     if(tipo=="cel")
     {
         wwi=900;
-        h1="Cells:",h2="Saving and updating reference data for cells is automatic when connecting to it as the main band; to manually save cells, add it to the bottom of the Hack script (grey in table); <b>the \"PCI\" number may be subject to change by the network operator and may be duplicated and not correctly identifiable in neighboring cells</b>.<br>Use \"PCI\" and \"EARFCN download\" parameters to set (if available) \"192.168.8.1/->(Accessibility mode off)->Advanced->System->System Settings->Developer options->Band selection\".<br>To get info about cells (not always correct) search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://sqimway.com/'target='_blank'>sqimway.com/</a>.";
-        re1=[["Cell Id","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Added/Changed","Last used"]];
+        h0="** Changes: 1 PCI, 2 Band, 3 Bandwidth, 4 EARFCN, 5 ENB.";h1="Cells:",h2="Saving and updating reference data for cells is automatic when connecting to it as the main band; to manually save cells, add it to the bottom of the Hack script (grey in table); <b>the \"PCI\" number may be subject to change by the network operator and may be duplicated and not correctly identifiable in neighboring cells</b>.<br>You can use \"PCI\" and \"EARFCN download\" parameters to set (if available) \"192.168.8.1/->(Accessibility mode off)->Advanced->System->System Settings->Developer options->Band selection->...\".<br>To get info about cells (not always correct) search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://sqimway.com/'target='_blank'>sqimway.com/</a>.";
+        re1=[["Cell Id (LTE)","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Add/Change**","Last used"]];
         re2=JSON.parse(JSON.stringify(cells));
-        re3=JSON.parse(localStorage.getItem(sn));
+        re3=JSON.parse(localStorage.getItem(sn));re3s=JSON.parse(JSON.stringify(re3));
         for(const[a]of Object.entries(re2))
         {
             if(re2[a][4] in bts)re2[a].splice(5,0,bts[re2[a][4]][0]);
@@ -591,12 +597,13 @@ function clickStorage(tipo,b)
             if(re3[a][4] in bts)re3[a].splice(5,0,bts[re3[a][4]][0]);
             else{re3[a].splice(5,0,"<button onclick='window.opener.clickStorage(\"bts\",true)'>Add Location</button>");re3[a][4]="<a id='link' target='_blank' href='"+link+re3[a][4].replace(/^0+/,"")+"'><span id='enodeb_id'>"+re3[a][4]+"</span></a>";}
         }
+        c={...re2, ...re3};for(const[a]of Object.entries(c))for(const[aa]of Object.entries(c))if(c[aa][0]==c[a][0].replace("*","")&&a!=aa)c[aa][0]+="*";
     }
     function tab()
     {
         h="";
         for(const[a]of Object.entries(re1)){h+="<tr bgcolor='B0E0E6'>";for(const[,c]of Object.entries(re1[a]))h+="<td>"+c+"</td>";h+="</tr>";}
-        for(const[a]of Object.entries(re2)){h+="<tr bgcolor='#C0C0C0'><td>"+a+(a in re3?"*":"")+"</td>";for(const[,c]of Object.entries(re2[a]))h+='<td>'+c+'</td>';h+='</tr>';}
+        for(const[a]of Object.entries(re2)){h+="<tr bgcolor='%23C0C0C0'><td>"+a+(a in re3?"*":"")+"</td>";for(const[,c]of Object.entries(re2[a]))h+='<td>'+c+'</td>';h+='</tr>';}
         for(const[a]of Object.entries(re3)){h+="<tr><td bgcolor='B0E0E6'>"+a+(a in re2?"*":"")+" <input type='checkbox'name='c'value='"+a+"'></td>";for(const[,c]of Object.entries(re3[a]))h+='<td>'+c+'</td>';h+='</tr>'}
         h+="<tr><td bgcolor='B0E0E6' style='text-align:right'><input id='cc'type='checkbox'onclick='c=document.getElementsByName(\"c\");for(i in c)c[i].checked=this.checked;'></td><td><button onclick='delsto()'>Delete</button></td></tr>";
         t=document.createElement('table'),t.innerHTML=h;tb=w.document.getElementById('tb'),tb.replaceChildren(t);
@@ -608,9 +615,9 @@ function clickStorage(tipo,b)
             if(c[i].checked)
             {
                 delete re3[c[i].value];
-                if(tipo=="rec")localStorage.setItem(sn,JSON.stringify(re3.filter(n=>n!=null)));
+                if(tipo=="rec"){localStorage.setItem(sn,JSON.stringify(re3.filter(n=>n!=null)))}
                 if(tipo=="bts"){localStorage.setItem(sn,JSON.stringify(re3));loadbts()}
-                if(tipo=="cel"){localStorage.setItem(sn,JSON.stringify(re3));loadcel()}
+                if(tipo=="cel"){delete re3s[c[i].value];localStorage.setItem(sn,JSON.stringify(re3s));loadcel()}
             }
         w.document.getElementById("cc").checked=false;
         tab();
@@ -620,7 +627,7 @@ function clickStorage(tipo,b)
         r="";re1.forEach(function(c){r+=c+"\n"});b=new Blob([(r+"\n- In script -\n"+JSON.stringify(re2)+"\n\n- In local storage -\n"+JSON.stringify(re3)).replaceAll("],","],\n")],{type:"text/plain"});
         l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=sn+".txt";l.click();
     };
-    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>* Douplicate.<br><b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
+    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>* Douplicate. "+h0+"<br><b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
     tab();
     if(b)setTimeout(()=>
     {
@@ -651,9 +658,9 @@ function ftb()
         --neitd3:0;
         --neitd4:0;
     }
-    .val,.vali,#enodeb_id
+    .val,.vali,%23enodeb_id
 	{
-		color:#b00;
+		color:%23b00;
 		font-weight:bold;
 	}  
     .vali
@@ -663,7 +670,7 @@ function ftb()
         font-family:inherit;
         font-size:inherit;
     }
-    #enodeb_id
+    %23enodeb_id
 	{
         text-decoration:underline;
 	}
@@ -675,7 +682,7 @@ function ftb()
         font-family:inherit;
         font-size:inherit;
     }
-    #nei
+    %23nei
     {
         position:relative;
         width:12em;
@@ -705,7 +712,7 @@ function ftb()
     }
     .f,.f2
 	{
-		border:1px solid #bbb;
+		border:1px solid %23bbb;
 		border-radius:5px;
 		padding:2px;
 		line-height:2em;
@@ -721,10 +728,10 @@ function ftb()
     {
         float:right;
     }
-	#tit
+	%23tit
 	{
 		color:white;
-		background-color:#888;
+		background-color:%23888;
 		margin:2px;
 		padding:2px;
 		border-radius:5px;
@@ -739,7 +746,7 @@ function ftb()
     .but
     {
         font-weight:bold;
-        background-color:#448;
+        background-color:%23448;
         border:none;
         color:white;
         padding:5px;
@@ -750,33 +757,33 @@ function ftb()
 	<div id="tit"></div>
     <div name="lte" class="f">
     RSRP:<span id="ltersrp" class="val"></span><span id="medltersrp" class="med"></span><span style="float:right">ENB:<span id="lteenb" class="val"></span>&ensp;Band:<span id="lteband" class="val"></span></span><div id="bltersrp"></div>
-    SINR:<span id="ltesinr" class="val"></span><span id="medltesinr" class="med"></span><span style="float:right">RecordMed<input type="checkbox" id="reclte" onclick="clickRecMed(this,\'lte\');"></span><div id="bltesinr"></div>
+    SINR:<span id="ltesinr" class="val"></span><span id="medltesinr" class="med"></span><span style="float:right">RecordMed <input type="checkbox" id="reclte" onclick="clickRecMed(this,\'lte\');"></span><div id="bltesinr"></div>
 	RSRQ:<span id="ltersrq" class="val"></span><span id="medltersrq" class="med"></span><span style="float:right" id="countlte">CurrentMed:<span id="medcountlte" class="val"></span><input id="medsetcountlte" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57);" onblur="clickNumCurMed(this,\'lte\')" onfocus="this.value=\'\';"></span><div id="bltersrq"></div>
     RSSI:<span id="lterssi" class="val"></span><span id="medlterssi" class="med"></span><span style="float:right" id="storelte"></span><br>
     <select id="selsignlte" class="sel" onchange="clickSelSign(this.value,\'lte\')"><option value="ltesign">Signal</option><option value="ltecqi0">CQI</option></select>:<span id="ltesign" class="val"></span><span id="medltesign" class="med"></span><div id="bltesign"></div>
     </div>
 	<div name="nr" class="f">
-	RSRP:<span id="nrrsrp" class="val"></span><span id="mednrrsrp" class="med"></span><span style="float:right">ENB:<span id="nrenb" class="val"></span>&ensp;Band:<span id="nrband" class="val"></span></span><div id="bnrrsrp"></div>
-	SINR:<span id="nrsinr" class="val"></span><span id="mednrsinr" class="med"></span><span style="float:right">RecordMed<input type="checkbox" id="recnr" onclick="clickRecMed(this,\'nr\');"></span><div id="bnrsinr"></div>
-    RSRQ:<span id="nrrsrq" class="val"></span><span id="mednrrsrq" class="med"></span><span style="float:right" id="countnr">CurrentMed:<span id="medcountnr" class="val"></span><input id="medsetcountnr" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57);" onblur="clickNumCurMed(this,\'nr\')" onfocus="this.value=\'\';"></span><div id="bnrrsrq"></div>
-    RSSI:<span id="nrrssi" class="val"></span><span id="mednrrssi" class="med"></span><span style="float:right" id="storenr"></span><br>
+	NR RSRP:<span id="nrrsrp" class="val"></span><span id="mednrrsrp" class="med"></span><span style="float:right">ENB:<span id="nrenb" class="val"></span>&ensp;Band:<span id="nrband" class="val"></span></span><div id="bnrrsrp"></div>
+	NR SINR:<span id="nrsinr" class="val"></span><span id="mednrsinr" class="med"></span><span style="float:right">RecordMed <input type="checkbox" id="recnr" onclick="clickRecMed(this,\'nr\');"></span><div id="bnrsinr"></div>
+    NR RSRQ:<span id="nrrsrq" class="val"></span><span id="mednrrsrq" class="med"></span><span style="float:right" id="countnr">CurrentMed:<span id="medcountnr" class="val"></span><input id="medsetcountnr" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57);" onblur="clickNumCurMed(this,\'nr\')" onfocus="this.value=\'\';"></span><div id="bnrrsrq"></div>
+    NR RSSI:<span id="nrrssi" class="val"></span><span id="mednrrssi" class="med"></span><span style="float:right" id="storenr"></span><br>
     <select id="selsignnr" class="sel" onchange="clickSelSign(this.value,\'nr\')"><option value="nrsign">Signal</option><option value="nrcqi0">CQI</option></select>:<span id="nrsign" class="val"></span><span id="mednrsign" class="med"></span><div id="bnrsign"></div>
 	</div>
     <div id="nei" class="f">
-    Neighbor Cells<input type="checkbox" id="neifor" onclick="clickNei(this);">
+    Neighbor PCI <input type="checkbox" id="neifor" onclick="clickNei(this);">
     <table id="neitaps" class="nei"></table><table id="neitab" class="nei val"></table>
     <span style="position:absolute;bottom:0"><span id="neireclte"></span><br><span id="neirecnr"></span></span>
     </div>
     <div class="f">
-	Antennas:<span id="a1" class="val"></span>-<span id="a2" class="val"></span>
+	<span name="net">5G&nbsp;</span>Antennas:<span id="a1" class="val"></span>-<span id="a2" class="val"></span>
 	</div>
 <!-- </div><div style="display:block;overflow:auto;position:relative;font-size:14px"> -->
 	<div class="f">
-    <span id="force">Force Set 4G<input type="checkbox" id="force4g"></span> <button class="but" onclick="clicksetLTEBand()">Set Bands</button><br>
+    <span name="net">Force 4G set <input type="checkbox" id="force4g"></span> <button class="but" onclick="clicksetLTEBand()">Set Bands</button><br>
 	Allowed:<span id="allowed" class="val"></span>
 	</div>
 	<div class="f">
-	ENB Id:<a id="link" target="lteitaly" href="#"><span id="enodeb_id">#</span></a><br>
+	ENB Id:<a id="link" target="lteitaly" href="%23"><span id="enodeb_id">%23</span></a><br>
     Location:<span id="namebts" class="val"></span><br>
     <span id="btsb">Availables:<span id="bandsbts" class="val"></span></span>
 	</div>
@@ -802,17 +809,29 @@ function ftb()
     ');
 }
 /*current*/
-signnam=["nrrsrp","nrrsrq","nrsinr","nrrssi","nrcqi0","ltersrp","ltersrq","ltesinr","lterssi","ltecqi0","nrdlbandwidth","nrulbandwidth","ltedlbandwidth","lteulbandwidth","scc_pci","pci","band"];
-signnam2=["nrearfcn","lteearfcn","enodeb_id","cell_id","nei_cellid"];
-signval={"nrrsrp":"","nrrsrq":"","nrsinr":"","nrrssi":"","nrcqi0":"","ltersrp":"","ltersrq":"","ltesinr":"","lterssi":"","ltecqi0":"","nrdlbandwidth":"","nrulbandwidth":"","ltedlbandwidth":"","lteulbandwidth":"","band":"","nrearfcn":"","lteearfcn":"","enodeb_id":"","cell_id":"","scc_pci":"","pci":"","nei_cellid":"","plmn":"","nrsign":"","ltesign":"","nrmain":"","ltemain":"","nrmainfreq":"","ltemainfreq":""};
-currval={"nrrsrp":0,"nrrsrq":0,"nrsinr":0,"nrrssi":0,"nrcqi0":0,"ltersrp":0,"ltersrq":0,"ltesinr":0,"lterssi":0,"ltecqi0":0,"nrsign":0,"ltesign":0};
-currgra={"nrrsrp":[],"nrrsrq":[],"nrsinr":[],"nrsign":[],"nrcqi0":[],"ltersrp":[],"ltersrq":[],"ltesinr":[],"ltesign":[],"ltecqi0":[]};
+signnam=["nrrsrp" ,"nrrsrq" ,"nrsinr" ,"nrrssi" ,"nrcqi0" ,"nrdlbandwidth" ,"nrulbandwidth"
+        ,"ltersrp","ltersrq","ltesinr","lterssi","ltecqi0","ltedlbandwidth","lteulbandwidth"
+        ,"scc_pci","pci","band"];/*band=only LTE or list LTE&NR*/
+signnam2=["nrearfcn","lteearfcn","enodeb_id","cell_id","nei_cellid"];/*no wiew;cell_id&nei_cell=only LTE*/
+signval={"nrrsrp" :"","nrrsrq" :"","nrsinr" :"","nrrssi" :"","nrcqi0": "","nrdlbandwidth":"" ,"nrulbandwidth":"" ,"nrearfcn":"" ,"nrsign":"" ,"nrmain":""
+        ,"nrearfcndl":"" ,"nrearfcnul":""
+        ,"ltersrp":"","ltersrq":"","ltesinr":"","lterssi":"","ltecqi0":"","ltedlbandwidth":"","lteulbandwidth":"","lteearfcn":"","ltesign":"","ltemain":""
+        ,"lteearfcndl":"","lteearfcnul":""
+        ,"band":"","enodeb_id":"","cell_id":"","scc_pci":"","pci":"","nei_cellid":"","plmn":""};
+currval={"nrrsrp":0 ,"nrrsrq":0 ,"nrsinr":0 ,"nrrssi":0 ,"nrcqi0":0 ,"nrsign":0
+        ,"ltersrp":0,"ltersrq":0,"ltesinr":0,"lterssi":0,"ltecqi0":0,"ltesign":0};
+currgra={"nrrsrp":[] ,"nrrsrq":[] ,"nrsinr":[] ,"nrsign":[] ,"nrcqi0":[]
+        ,"ltersrp":[],"ltersrq":[],"ltesinr":[],"ltesign":[],"ltecqi0":[]};
 currnei=[];
 /*recMed*/
-recmax={"nrrsrp":-999,"nrrsrq":-999,"nrsinr":-999,"nrsign":-999,"nrcqi0":-999,"ltersrp":-999,"ltersrq":-999,"ltesinr":-999,"ltesign":-999,"ltecqi0":-999};
-recmin={"nrrsrp":999,"nrrsrq":999,"nrsinr":999,"nrsign":999,"nrcqi0":999,"ltersrp":999,"ltersrq":999,"ltesinr":999,"ltesign":999,"ltecqi0":999};
-recmed={"nrrsrp":0,"nrrsrq":0,"nrsinr":0,"nrrssi":0,"nrsign":0,"nrcqi0":0,"ltersrp":0,"ltersrq":0,"ltesinr":0,"lterssi":0,"ltesign":0,"ltecqi0":0};
-recmedgra={"nrrsrp":[],"nrrsrq":[],"nrsinr":[],"nrsign":[],"nrcqi0":[],"ltersrp":[],"ltersrq":[],"ltesinr":[],"ltesign":[],"ltecqi0":[]};
+recmax={"nrrsrp":-999 ,"nrrsrq":-999 ,"nrsinr":-999 ,"nrsign":-999 ,"nrcqi0":-999
+       ,"ltersrp":-999,"ltersrq":-999,"ltesinr":-999,"ltesign":-999,"ltecqi0":-999};
+recmin={"nrrsrp":999 ,"nrrsrq":999 ,"nrsinr":999 ,"nrsign":999 ,"nrcqi0":999
+       ,"ltersrp":999,"ltersrq":999,"ltesinr":999,"ltesign":999,"ltecqi0":999};
+recmed={"nrrsrp":0, "nrrsrq":0, "nrsinr":0, "nrrssi":0, "nrsign":0, "nrcqi0":0
+       ,"ltersrp":0,"ltersrq":0,"ltesinr":0,"lterssi":0,"ltesign":0,"ltecqi0":0};
+recmedgra={"nrrsrp":[], "nrrsrq":[], "nrsinr":[], "nrsign":[], "nrcqi0":[]
+          ,"ltersrp":[],"ltersrq":[],"ltesinr":[],"ltesign":[],"ltecqi0":[]};
 recnumnei={"lte":{},"nr":{}},recneires={"lte":"","nr":""};
 recenb={"lte":"","nr":""},recband={"lte":"","nr":""},recpause={"lte":"","nr":""},recenbpause={"lte":"►","nr":"►"},recbandpause={"lte":"►","nr":"►"},recvalnot={"lte":false,"nr":false},recant="";
 recmaxcount={"lte":999,"nr":999},reccount={"lte":0,"nr":0},recstatus={"lte":0,"nr":0};/*status 0off1on2pause3end*/
@@ -823,14 +842,29 @@ curmaxcount={"lte":0,"nr":0},curstatus={"lte":0,"nr":0};/*status 0off1on2end/pau
 neistatus=1;/*status neighbor cell 0off1min2max*/
 defined={"lte":false,"nr":false,"nrrssi":false,"enodeb_id":false},defltenr=[];
 selsign={"lte":"ltesign","nr":"nrsign"},notselsign={"lte":"ltecqi0","nr":"nrcqi0"};
-enbmainchange={"lte":false,"nr":false},enbmainold={"lte":"","nr":""};celchange=false;
+enbmainchange={"lte":false,"nr":false},enbmainold={"lte":"","nr":""};celchange={"lte":false,"nr":false};
 stoname={"rec":"Hack_recmed","bts":"Hack_locbts","cel":"Hack_cells"};
 mainband=null,_2ndrun=null,suspend=false,itime=2000,antenna1type="",antenna2type="",state="",link="";
-earfcn={/*NRmain/LTEmain=Earfcn="priority(1,2,3...)-band":[dlmin,dlmax,ulmin,ulmax];for add Earfcn sqimway.com/nr_band.php or sqimway.com/lte_band.php*/
-"nr":{"1-1":[422000,434000,384000,396000],"1-3":[361000,376000,342000,357000],"1-7":[524000,538000,500000,514000],"1-8":[185000,192000,176000,183000],"1-20":[158200,164200,166400,172400],"1-28":[151600,160600,140600,149600],"1-38":[514000,524000,514000,524000],"1-78":[620000,653333,620000,653333],"2-2":[386000,398000,370000,382000],"2-5":[173800,178800,164800,169800],"2-12":[145800,149200,139800,143200],"2-25":[386000,399000,370000,383000],"2-30":[470000,472000,461000,463000],"2-31":[92500,92500,90500,91500],"1-40":[460000,480000,460000,480000],"2-41":[499200,537999,499200,537999],"2-42":[41590,42590,41590,42590],"2-66":[422000,440000,342000,356000],"2-71":[123400,130400,132600,139600],"2-77":[620000,680000,620000,680000],"2-79":[693334,733333,693334,733333]/*..*/},
-"lte":{"1-1":[0,599,18000,18300],"1-3":[1200,1949,19200,19949],"1-5":[2400,2649,20400,20649],"1-7":[2750,3449,20750,21449],"1-8":[3450,3799,21450,21799],"1-20":[6150,6449,24150,24449],"1-28":[9210,9659,27210,27659],/*"1-32":[9920,10359,,],*/"1-38":[37750,38249,37750,38249],"2-2":[600,1199,18600,19199],"2-4":[1950,2399,19950,20399]/*..*/}};
-/*---graph window width, height, line width*/
+/*graph window width, height, line width*/
 gw=500,gh=40,gt=4,boxcar=0;
+/*--- EARFCN ---*/
+earfcn=[];/*EUR, USA, ...;EARFCN->mainband;for add/change sqimway.com/nr_band.php or sqimway.com/lte_band.php*/
+earfcn["eur"]={/*"band":[earfcn_dl_min,earfcn_dl_max,earfcn_ul_min,earfcn_ul_max],*/
+"lte":{"1":  [0,599,18000,18300]          ,"3":  [1200,1949,19200,19949]      ,"7": [2750,3449,20750,21449]      ,"20":[6150,6449,24150,24449]     
+      ,"28": [9210,9659,27210,27659]      ,"32": [9920,10359,,]},
+"nr":{ "1":  [422000,434000,384000,396000],"3":  [361000,376000,342000,357000],"7": [524000,538000,500000,514000],"8": [185000,192000,176000,183000]
+      ,"20": [158200,164200,166400,172400],"28": [151600,160600,140600,149600],"38":[514000,524000,514000,524000],"78":[620000,653333,620000,653333]
+      ,"258":[2016667,2070832,,]},
+};
+earfcn["usa"]={
+"lte":{"2":  [600,1199,18600,18900]       ,"4":  [1950,2399,19950,20399]      ,"5": [2400,2649,20400,20649]      ,"12":[5010,5179,23010,23179]
+      ,"13": [5180,5279,23180,23279]      ,"17": [5730,5849,23730,23849]      ,"20":[6150,6449,24150,24449]      ,"25":[8040,8689,26040,26689]
+      ,"26": [8690,9039,26690,27039]      ,"30": [9770,9869,27660,27759]      ,"41":[39650,41589,,]              ,"48":[55240,56739,,]
+      ,"66": [66436,67335,131972,132671]  ,"71": [68586,68935,133122,133471]},
+"nr":{ "2":  [386000,398000,370000,382000],"5":  [173800,178800,164800,169800],"12":[145800,149200,139800,143200],"25":[386000,399000,370000,383000]
+      ,"41": [499200,537999,,]            ,"66": [422000,440000,342000,356000],"71":[123400,130400,132600,139600],"77":[620000,680000,,]
+      ,"258":[2016667,2070832,,]          ,"261":[2070833,2084999,,]},
+};
 /*--- SIGNAL VALUE LIMITS ---
 SET limits per usual use (subjective, for calc Signal and graph limits)*/
 max_rsrp=-55, min_rsrp=-125;  /* dBm RSRP */
@@ -860,7 +894,7 @@ qp=signal_balance_rsrp*(1-signal_volatility_rsrp/(max_rsrp-min_rsrp));qq=signal_
 totq=(qp+qq+qr+qi)/100;
 balance_rsrp=qp/totq;balance_rsrq=qq/totq;balance_sinr=qr/totq;balance_rssi=qi/totq;
 /*--- BTS LOCATION ---
-ADD or DELETE BTS locations (optional(opt), get in lteitaly.it, cellmapper.net or other)*/
+ADD or DELETE BTS locations (optional(opt), get info lteitaly.it, cellmapper.net or other)*/
 var bts_location={/*
 "0eNB Id":["nr.eNB,BTS loc.,distance,more(opt)" ,"Availables bands(opt)"],*/
 "0432259":["Salve campo di calcio"              ,"B7 B1 B3 B20 N3 N38 N78"],
@@ -875,12 +909,17 @@ var bts_location={/*
 "0363379":["2:Balanzano 4,6km"                  ,"B1+"],
 },bts;
 /*--- KNOWN CELLS ---
-ADD or DELETE cell (optional(opt), get in cellmapper.net or other)*/
+ADD or DELETE cell (optional(o), get info cellmapper.net or other)*/
 var cells={/*
-"Cell"    :["PCI(opt)","band(opt)","bandwidth dl(opt)","EARFCN dl(opt)","0+ENB(opt)","",""],*/
-"92722183":["458"     ,"B20"      ,"10Mhz"            ,"6200"          ,"0362196"   ,"",""],
-"92770056":["309"     ,"B20"      ,""                 ,""              ,"0362383"   ,"",""],
+"Cell"    :["PCI(o)","band(o)","bandwidth dl(o)","EARFCN dl(o)","0+ENB(o)","",""],*/
+"92722183":["458"   ,"B20"    ,"10Mhz"          ,"6200"        ,"0362196" ,"",""],
+"92770056":["309"   ,"B20"    ,""               ,""            ,"0362383" ,"",""],
 },cel,celsto;
+/*--- GEOGRAPHICAL AREA ---
+Available: EUR/USA (parameter used to determine the band with the EARFCN value)*/
+geo_area="eur";
+/*-------------------------*/
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=window.setInterval(currentData,itime);
-tit("Che la banda sia con te! by Miononno&#9829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.2.1 by Riccardo Fanelli"),msg("Tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers"),msg("Type: netmode, signal, status, antennatype");
+tit("Che la banda sia con te! by Miononno&%239829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.3.0 by Riccardo Fanelli"),msg("Tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers"),msg("Type: netmode, signal, status, antennatype");
+/*in script convert char hash"#" in "%23"*/
 ```
