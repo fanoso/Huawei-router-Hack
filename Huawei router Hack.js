@@ -534,7 +534,7 @@ function clickStorage(tipo,b)
     {
         wwi=900;
         h0="** Changes: 1 PCI, 2 Band, 3 Bandwidth, 4 EARFCN, 5 ENB.";h1="Cells:",h2="Saving and updating reference data for cells is automatic when connecting to it as the main band; to manually save cells, add it to the bottom of the Hack script (grey in table).<br><b>The \"PCI\" number may be subject to change by the network operator and may be duplicated and not correctly identifiable in neighboring cells</b>.<br><b>Cell Id for NR not available in modem API.</b><br>You can use \"PCI\" and \"EARFCN download\" parameters to set (if available) \"192.168.8.1/->(Accessibility mode off)->Advanced->System->System Settings->Developer options->Band selection->...\".<br>To get info about cells or ENB search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a>, <a href='https://sqimway.com/'target='_blank'>sqimway.com/</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
-        re1=[["Cell Id (LTE)","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Add/Change**","Last used"]];
+        re1=[["Cell Id","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Add/Change**","Last used"]];
         re2=JSON.parse(JSON.stringify(cells));
         re3=JSON.parse(localStorage.getItem(sn));re3s=JSON.parse(JSON.stringify(re3));
         for(const[a]of Object.entries(re2))
