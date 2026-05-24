@@ -10,13 +10,13 @@
 
 ### Installation and startup
 1. Create/add a new Browser Favorites/Bookmarks and name it Hack;
-2. Select all the JavaScript code from the "Huawei router Hack.js" or "README.md" file, copy and paste it into the Bookmark URL box, and save it;
-3. From the browser open the page at the address 192.168.8.1 of the router and log in (If necessary, recommended setting "Accessibility Mode" to on and "Login timed out" to max time);
-4. With this browser page open, load Hack from Bookmarks.
+2. Select all the JavaScript code from the 'Huawei router Hack.js' or 'README.md' file, copy and paste it into the Bookmark URL box, and save it;
+3. Open the router's local URL from your browser (ex. 'http://192.168.8.1') and log in (If necessary recommended setting 'Accessibility Mode' to on and 'Login timed out' to max time);
+4. From the router page opened in the browser, load Hack from Bookmarks.
 
 ### Info
 - Tested with **Huawei B818 and B636 4G router**, Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it - Advanced **v1.3.1** by Riccardo Fanelli.
+- Base code v5.0 by miononno.it - Advanced **v1.3.2** by Riccardo Fanelli.
 
 ---
 
@@ -28,13 +28,13 @@
 
 ### Installazione e avvio
 1. Creare/aggiungere un nuovo Segnalibro/Preferito al Browser e nominarlo Hack;
-2. Selezionare tutto il codice JavaScript del file "Huawei router Hack.js" o "README.md", copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo;
-3. Dal Browser aprire la pagina all'indirizzo 192.168.8.1 del router e accedere (se necessario, consigliato settare "Modalità di accessibilità" attivo e "Scadenza Accesso" a tempo massimo);
-4. Con questa pagina del browser aperta, caricare Hack dai Segnalibri.
+2. Selezionare tutto il codice JavaScript del file 'Huawei router Hack.js' o "README.md', copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo;
+3. Dal browser aprire l'URL locale del router (es. http://192.168.8.1) e accedere (se necessario consigliato settare 'Modalità di accessibilità' attivo e 'Scadenza Accesso' a tempo massimo);
+4. Dalla pagina del router aperta nel browser, caricare Hack dai Segnalibri.
 
 ### Info
 - Testato con **Huawei B818 e B636 4G**, browser Firefox, Edge, Chrome.
-- Codice base v5.0 di miononno.it - Evoluzione **v1.3.1** di Riccardo Fanelli.
+- Codice base v5.0 di miononno.it - Evoluzione **v1.3.2** di Riccardo Fanelli.
 
 ---
 

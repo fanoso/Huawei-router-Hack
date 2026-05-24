@@ -1,7 +1,7 @@
 javascript:ftb();
 function ha(i,h)
 {
-	try{document.getElementById(i).innerHTML=h}catch(e){}
+	try{document.getElementById(i).innerHTML=h}catch(m){}
 }
 function ro(n)
 {
@@ -11,9 +11,9 @@ function net(p)
 {
     return p.slice(0,3)=="lte"?"lte":"nr";
 }
-function msg(e)
+function msg(m)
 {
-    console.log(e);
+    console.log(m);
 }
 function tit(a)
 {
@@ -21,7 +21,7 @@ function tit(a)
 }
 function extractXML(t,d)
 {
-	try{return d.split("</"+t+">")[0].split("<"+t+">")[1]}catch(e){return e.message}
+	try{return d.split("</"+t+">")[0].split("<"+t+">")[1]}catch(m){return m.message}
 }
 function _4GType(d)
 {
@@ -70,19 +70,39 @@ function start()
     boxcar=parseInt(gw/gt),gtm=parseInt(gt/2);
     loadbts();
     loadcel();
+    /*stop(restart)timeout(if available)=interval of<request>*/
+    let xac=new XMLHttpRequest;xac.open("GET","/api/webserver/accessibility",!0),xac.setRequestHeader("Content-type","application/json; charset=UTF-8"),xac.send(),xac.onload=function()
+    {
+        if(200===xac.status&&xac.responseText.includes("response"))
+        {
+            timeo=extractXML("timeout",xac.responseText);
+            setInterval(function()
+            {
+                xh=new XMLHttpRequest;xh.open("GET","/html/home.html",!0);xh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xh.send(),xh.onload=function()
+                {
+                    if(200===xh.status)
+                    {
+                        d=xh.responseText.split('name="csrf_token" content="');token=d[d.length-1].split('"')[0];
+                        xa=new XMLHttpRequest;xa.open("POST","/api/webserver/accessibility",!0);xa.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset=UTF-8");xa.setRequestHeader("__RequestVerificationToken",token);xa.send('<?xml version="1.0" encoding="UTF-8"?><request><timeout>'+timeo+'</timeout></request>');
+                    }
+                }
+            },60000*(timeo-.5));
+        }
+    }
 }
 function currentData()
 {
 	if(suspend)return;
     try{document.getElementById("dhcp_mask").style.display="block",document.getElementById("dhcp_dns").style.display="block"}catch(e){}
 /*  HUAWEI VARIABLES & FUNCTION
-    start()             /*Huawei->(indipendent)plmn,nrrsrp,rsrp,nrrssi,enodeb_id*/
+    start()             Huawei->(indipendent)signal->plmn,nrrsrp,rsrp,nrrssi,enodeb_id,accessibility->timeout
+    clicksetLTEBand()   Huawei->(indipendent)*/
     Promise.all([
-        getSignal(),    /*Huawei->nrrsrp,nrrsrq,nrsinr,(nrrssi),(nrcqi0),(lte)rsrp,(lte)rsrq,(lte)sinr,(lte)rssi,(lte)cqi0,nrdlbandwidth,nrulbandwidth,
-                        (lte)dlbandwidth,(lte)ulbandwidth,band,nrearfcn,(lte)earfcn,enodeb_id,cell_id,pci,nei_cellid->..*/
-        getStatus(),    /*Huawei->(LTE band aggregation status)CurrentNetworkTypeEx->is4gp->..*/
-        getAntenna(),   /*Huawei->(antennas status)antenna1type+antenna2type->..*/
-        getNetmode(),   /*Huawei->(allowed bands status,indipendent)LTEBand*/
+        getSignal(),    /*Huawei->(get&view parameter)signal->nrrsrp,nrrsrq,nrsinr,(nrrssi),(nrcqi0),(lte)rsrp,(lte)rsrq,(lte)sinr,(lte)rssi,(lte)cqi0,
+                        nrdlbandwidth,nrulbandwidth,(lte)dlbandwidth,(lte)ulbandwidth,nrearfcn,(lte)earfcn,scc_pci,pci,band,enodeb_id,cell_id,nei_cellid->..*/
+        getStatus(),    /*Huawei->(LTE band aggregation status)status->CurrentNetworkTypeEx->is4gp->..*/
+        getAntenna(),   /*Huawei->(antennas status)antenna_type->antenna1type+antenna2type->..*/
+        getNetmode(),   /*Huawei->(allowed bands status,indipendent)net-mode->LTEBand*/
     ]).then(function()
     {         
         setENBMainBTS();/*..<-band,nrearfcn,(lte)earfcn,enodeb_id,cell_id<-Huawei*/
@@ -96,8 +116,7 @@ function currentData()
     {
         msg(e);
     });
-/*  clicksetLTEBand()   Huawei->(indipendent)
-    clickStorage()      ..<-enodeb_id<-Huawei
+/*  clickStorage()      ..<-enodeb_id<-Huawei
     clickRecMed()       ..<-antenna1type,antenna2type,enodeb_id<-Huawei
     extractXML()        (sub for Huawei function)
     4GType()            (sub for Huawei function)*/
@@ -481,7 +500,7 @@ function clickNei(a)
 }
 function clicksetLTEBand(bs)
 {
-    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Please input LTE bands number allowed separated by '+', add 'm' to set main (example 1+3+20 or m3+7)(the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.\nAlternatively, set the band in the router settings as indicated in \"Open cell\".","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(mainband)return _2ndrun=bs,void clicksetLTEBand(String(mainband));suspend=1,ha("t","! PLEASE WAIT !"),tit("! PLEASE WAIT !"),xhrh=new XMLHttpRequest,xhrh.open("GET","/html/home.html",!0),xhrh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrh.send(),xhrh.onload=function(){if(200===xhrh.status){var datas=xhrh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){xhrp=new XMLHttpRequest,xhrp.open("POST","/api/net/net-mode",!0),xhrp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrp.setRequestHeader("__RequestVerificationToken",token),cmd="<request><NetworkMode>"+nw+"</NetworkMode><NetworkBand>3FFFFFFF</NetworkBand><LTEBand>"+ltesum+"</LTEBand></request>",xhrp.send(cmd),xhrp.onload=function(){200===xhrp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clicksetLTEBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):err()}}),2e3)}}
+    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Please input LTE bands number allowed separated by '+', add 'm' to set main (example 1+3+20 or m3+7)(the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.\nAlternatively, set the band in the router settings as indicated in \"Open cell\".","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(mainband)return _2ndrun=bs,void clicksetLTEBand(String(mainband));suspend=1,ha("t","! PLEASE WAIT !"),tit("! PLEASE WAIT !"),xhrh=new XMLHttpRequest,xhrh.open("GET","/html/home.html",!0),xhrh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrh.send(),xhrh.onload=function(){if(200===xhrh.status){var datas=xhrh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){xhrp=new XMLHttpRequest,xhrp.open("POST","/api/net/net-mode",!0),xhrp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrp.setRequestHeader("__RequestVerificationToken",token),cmd="<request><NetworkMode>"+nw+"</NetworkMode><NetworkBand>3FFFFFFF</NetworkBand><LTEBand>"+ltesum+"</LTEBand></request>",xhrp.send(cmd),xhrp.onload=function(){200===xhrp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clicksetLTEBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode:"+x.status);}}),2e3)}}
 }
 function clickNumRecMed(a,b)
 {
@@ -501,11 +520,11 @@ function clickSelSign(a,b)
 function clickTime()
 {
     do{t=prompt("Please input interval time (1 to 600 seconds)",itime/1000);if(t==null)return}while(t==""||t<1||t>600||isNaN(t))
-    itime=parseFloat(ro(t))*1000;clearInterval(interval);interval=window.setInterval(currentData,itime);
+    itime=parseFloat(ro(t))*1000;clearInterval(interval);interval=setInterval(currentData,itime);
 }
 function clickInfo()
 {
-    alert("--- Definitions ---\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\n\nRSRP: Useful signal strength of the cell to which you are connected.\n\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\n\nSINR: Explicit signal quality evaluation from the ratio of the useful signal strength to interference+noise strengths.\n\nCQI / Signal: Conventional evaluation of signal quality calculated by the modem and sent to the BTS which, by adjusting the signal modulation, balances data transmission speed and connection reliability. / Signal quality evaluation calculated by balancing the underlying parameters.\n\nBandwidth: bandwidth used to transmit a maximum amount of data in one second.\n\nEARFCN: Conventional and unique identification number used to define and identify the uplink or downlink frequency.\n\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an antenna / Short id. num. of a cell in a limited area.\n\nBTS / ENB Id: Base tower station / Id. num. for 2nd advanced node for LTE of a BTS.");
+    alert("--- Definitions ---\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\n\nRSRP: Useful signal strength of the cell to which you are connected.\n\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\n\nSINR: Explicit signal quality evaluation from the ratio of the useful signal strength to interference+noise strengths.\n\nCQI / Signal: Conventional signal quality evaluation calculated by the modem and sent to the BTS which, by adjusting the signal modulation, balances data transmission speed and connection reliability. / Signal quality evaluation calculated by balancing the underlying parameters.\n\nBandwidth: bandwidth used to transmit a maximum amount of data in one second.\n\nEARFCN: Conventional and unique identification number used to identify the uplink or downlink frequency band (no real frequancy).\n\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an antenna / Short id. num. of a cell in a limited area.\n\nBTS / ENB Id: Base tower station / Id. num. for 2nd advanced node for LTE of a BTS.");
     alert("--- Parameters ---\n--- SIGNAL QUALITY BALANCED (to change edit the Hack script)\nsignal_balance_rssi="+signal_balance_rssi+"%\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_sinr="+signal_balance_sinr+" % \n\n--- SIGNAL VALUE LIMITS (to change edit the Hack script)\nmax_rssi="+max_rssi+"dBm min_rssi="+min_rssi+"dBm\nmax_rsrp="+max_rsrp+"dBm min_rsrp="+min_rsrp+"dBm\nmax_rsrq="+max_rsrq+"dB min_rsrq="+min_rsrq+"dB\nmax_sinr="+max_sinr+"dB min_sinr="+min_sinr+"dB\n\n--- BTS LOCATIONS (to add edit the Hack script)\n...(list)\n\n--- KNOWN CELLS (to add edit the Hack script)\n...(list)\n\n--- GEOGRAPHICAL AREA (to add or change edit the Hack script)\ngeo_area="+geo_area.toUpperCase()+"\n\n--- Info ---\nSignal, band and cell parameters if not specified are LTE.\nThe Hack script processes the parameters made available by the router API.\nTested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers.");
 }
 function clickStorage(tipo,b)
@@ -513,18 +532,16 @@ function clickStorage(tipo,b)
     sn=stoname[tipo];
     if(tipo=="rec")
     {
-        wwi=1700;
-        savq=["Please input new record info (optional)."],savl=[35];
-        h0="";h1="Records:",h2="For analysis of recordings, select table, copy and paste it into an Excel sheet or \"Export\" in .txt format.";
+        wwi=1700;savq=["Please input new record info (optional)."],savl=[35];
+        h0="";h1="Records:",h2="For analysis of recordings, select table, copy and paste it into an Excel sheet or 'Export' in .txt format.";
         re1=[["","Date and Time","Info","Network","Antennas","ENB Id","Main","Count-Time","RSRP","","","SINR","","","RSRQ","","","RSSI","Signal","","","CQI","","","Neighbor PCI"],["","","","",(defined["nr"]&&defined["lte"]?"5G":""),"","","","Med","Max","Min","Med","Max","Min","Med","Max","Min","Med","Med","Max","Min","Med","Max","Min","1st(n) 2nd(n) 3rd(n) 4th(n)"]];
         re2=[];
         if(localStorage.getItem(sn)===null)localStorage.setItem(sn,JSON.stringify([]));re3=JSON.parse(localStorage.getItem(sn));
     }
     if(tipo=="bts")
     {
-        wwi=900;
-        savq=["Please input new BTS location name (optional).\nTo get info about BTS locations, search for 'Enb Id' on the websites cellmapper.net or lteitaly.it.","Input availables BTS bands (optional)."],savl=[35,35];
-        h0="";h1="Locations:",h2="To manually save locations, add it to the bottom of the Hack script (grey in table).<br>To get info about BTS locations search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
+        wwi=900;savq=["Please input new BTS location name (optional).\nTo get info about BTS locations, search for 'Enb Id' on the websites cellmapper.net or lteitaly.it.","Input availables BTS bands (optional)."],savl=[35,35];
+        h0="* Douplicate.<br>";h1="Locations:",h2="To manually save locations, add it to the bottom of the Hack script (grey in table).";
         re1=[["ENB Id","BTS location name","Availables bands"]];
         re2=JSON.parse(JSON.stringify(bts_location));
         re3=JSON.parse(localStorage.getItem(sn));
@@ -532,8 +549,7 @@ function clickStorage(tipo,b)
     }
     if(tipo=="cel")
     {
-        wwi=900;
-        h0="** Changes: 1 PCI, 2 Band, 3 Bandwidth, 4 EARFCN, 5 ENB.";h1="Cells:",h2="Saving and updating reference data for cells is automatic when connecting to it as the main band; to manually save cells, add it to the bottom of the Hack script (grey in table).<br><b>The \"PCI\" number may be subject to change by the network operator and may be duplicated and not correctly identifiable in neighboring cells</b>.<br><b>Cell Id for NR not available in modem API.</b><br>You can use \"PCI\" and \"EARFCN download\" parameters to set (if available) \"192.168.8.1/->(Accessibility mode off)->Advanced->System->System Settings->Developer options->Band selection->...\".<br>To get info about cells or ENB search on <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a>, <a href='https://sqimway.com/'target='_blank'>sqimway.com/</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
+        wwi=900;h0="* Douplicate. ** Changes: 1 PCI, 2 Band, 3 Bandwidth, 4 EARFCN, 5 ENB.<br>";h1="Cells:",h2="Saving and updating reference data for cells is automatic when connecting to it as the main band; to manually save cells, add it to the bottom of the Hack script (grey in table).<br><b>The values may be subject to change by the network operator and The 'PCI' number may be duplicated and not correctly identifiable in neighboring cells</b>.<br><b>Cell Id for NR not available in modem API.</b><br>You can use 'PCI' and 'EARFCN download' parameters to set (if available) '192.168.8.1/->(Accessibility mode off)->Advanced->System->System Settings->Developer options->Band selection->...'.";
         re1=[["Cell Id","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Add/Change**","Last used"]];
         re2=JSON.parse(JSON.stringify(cells));
         re3=JSON.parse(localStorage.getItem(sn));re3s=JSON.parse(JSON.stringify(re3));
@@ -549,6 +565,7 @@ function clickStorage(tipo,b)
         }
         c={...re2,...re3};for(const[a]of Object.entries(c))for(const[aa]of Object.entries(c))if(c[aa][0]==c[a][0].replace("*","")&&a!=aa)c[aa][0]+="*";
     }
+    h3=tipo=="rec"?"":"<br>For info <a href='https://www.cellmapper.net'target='_blank'>cellmapper.net</a>, <a href='https://celltracker.it'target='_blank'>Celltracker.it</a>, <a href='https://sqimway.com/'target='_blank'>sqimway.com</a> or <a href='https://lteitaly.it'target='_blank'>lteitaly.it</a> (registration recommended).";
     function tab()
     {
         h="";
@@ -577,9 +594,9 @@ function clickStorage(tipo,b)
         r="";re1.forEach(function(c){r+=c+"\n"});b=new Blob([(r+"\n- In script -\n"+JSON.stringify(re2)+"\n\n- In local storage -\n"+JSON.stringify(re3)).replaceAll("],","],\n")],{type:"text/plain"});
         l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=sn+".txt";l.click();
     };
-    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>* Douplicate. "+h0+"<br><b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
+    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>"+h0+"<b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+h3+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
     tab();
-    if(b)setTimeout(()=>
+    if(b)setTimeout(function()
     {
         for(var inf=[],l=savq.length,i=0;i<l;i++)do{inf[i]=w.prompt(savq[i]+"\nMax "+savl[i]+" char.");if(inf[i]===null)return}while(inf[i].length>savl[i]);
         if(tipo=="rec")
@@ -657,7 +674,7 @@ function ftb()
     {
         width:var(--neitd4);
     }
-    .f,.f2
+    .f
 	{
 		border:1px solid %23bbb;
 		border-radius:5px;
@@ -723,7 +740,7 @@ function ftb()
 	</div>
 <!-- </div><div style="display:block;overflow:auto;position:relative;font-size:14px"> -->
 	<div class="f">
-    <span name="net">Force 4G set <input type="checkbox" id="force4g"></span> <button class="but" onclick="clicksetLTEBand()">Set Bands</button>
+    <span name="net">Force set 4G <input type="checkbox" id="force4g"></span> <button class="but" onclick="clicksetLTEBand()">Set Bands</button>
 	Allowed:<span id="allowed" class="val"></span>
 	</div>
 	<div class="f">
@@ -771,7 +788,7 @@ recmax={"nrrsrp":-999 ,"nrrsrq":-999 ,"nrsinr":-999             ,"nrcqi0":-999 ,
 recmin={"nrrsrp":999  ,"nrrsrq":999  ,"nrsinr":999              ,"nrcqi0":999  ,"nrsign":999  
        ,"ltersrp":999 ,"ltersrq":999 ,"ltesinr":999             ,"ltecqi0":999 ,"ltesign":999};
 recmed={"nrrsrp":0    ,"nrrsrq":0    ,"nrsinr":0    ,"nrrssi":0 ,"nrcqi0":0    ,"nrsign":0   
-       ,"ltersrp":0   ,"ltersrq":0   ,"ltesinr":0   ,"lterssi":0,"ltecqi0":0   ,"ltesign":0   };
+       ,"ltersrp":0   ,"ltersrq":0   ,"ltesinr":0   ,"lterssi":0,"ltecqi0":0   ,"ltesign":0};
 recmedgra={"nrrsrp":[] ,"nrrsrq":[]  ,"nrsinr":[]               ,"nrcqi0":[]   ,"nrsign":[]
           ,"ltersrp":[],"ltersrq":[] ,"ltesinr":[]              ,"ltecqi0":[]  ,"ltesign":[]};
 recnumnei={"lte":{},"nr":{}},recneires={"lte":"","nr":""};
@@ -789,8 +806,9 @@ stoname={"rec":"Hack_recmed","bts":"Hack_locbts","cel":"Hack_cells"};
 mainband=null,_2ndrun=null,suspend=false,itime=2000,antenna1type="",antenna2type="",state="",link="";
 /*graph window width, height, line width*/
 gw=500,gh=40,gt=4,boxcar=0;
-/*--- EARFCN ---*/
-earfcn=[];/*EUR, USA, ...;EARFCN->mainband;for add/change sqimway.com/nr_band.php or sqimway.com/lte_band.php*/
+/*--- EARFCN ---
+EUR,USA,...;EARFCN->mainband;for add/change sqimway.com/nr_band.php or sqimway.com/lte_band.php*/
+earfcn=[];
 earfcn["eur"]={/*"band":[earfcn_dl_min,earfcn_dl_max,earfcn_ul_min,earfcn_ul_max],*/
 "lte":{"1":  [0,599,18000,18300]          ,"3":  [1200,1949,19200,19949]      ,"7": [2750,3449,20750,21449]      ,"20":[6150,6449,24150,24449]     
       ,"28": [9210,9659,27210,27659]      ,"32": [9920,10359,,]},
@@ -855,14 +873,14 @@ var bts_location={/*
 /*--- KNOWN CELLS ---
 ADD or DELETE cell (optional(o), get info cellmapper.net or other)*/
 var cells={/*
-"Cell"    :["PCI(o)","band(o)","bandwidth dl(o)","EARFCN dl(o)","0+ENB(o)","",""],*/
+"Cell id ":["PCI(o)","band(o)","bandwidth dl(o)","EARFCN dl(o)","0+ENB(o)","",""],*/
 "92722183":["458"   ,"B20"    ,"10Mhz"          ,"6200"        ,"0362196" ,"",""],
 "92770056":["309"   ,"B20"    ,""               ,""            ,"0362383" ,"",""],
 },cel,celsto;
 /*--- GEOGRAPHICAL AREA ---
-Available: eur/usa (for determine NR band with EARFCN value (old router not indicated NR band in the <band> parameter))*/
+Available: eur/usa (to determine NR band with EARFCN value (use for old router not indicated NR band in the <band>))*/
 geo_area="eur";
 /*-------------------------*/
-status="",netmode="",signal="",antennatype="",start(),currentData(),interval=window.setInterval(currentData,itime);
-tit("Che la banda sia con te! by Miononno&%239829; & Riccardo Fanelli"),setTimeout(()=>{tit()},4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.3.1 by Riccardo Fanelli"),msg("Tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers"),msg("Type: netmode, signal, status, antennatype");
+status="",netmode="",signal="",antennatype="",start(),currentData(),interval=setInterval(currentData,itime);
+tit("Che la banda sia con te! by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit(),4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.3.2 by Riccardo Fanelli"),msg("Tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers"),msg("Type: netmode, signal, status, antennatype");
 /*in script convert char hash"#" in "%23"*/
