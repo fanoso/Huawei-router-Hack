@@ -9,9 +9,9 @@
 - With Huawei Router Hack, you can find the best channels (or bands) available and the best position for the modem or external antennas.
 
 ### Installation and startup
-1. Create/add a new Browser Favorites/Bookmarks and name it Hack;
-2. Select all the JavaScript code from the 'Huawei router Hack.js' or 'README.md' file, copy and paste it into the Bookmark URL box, and save it;
-3. Open the router's local URL from your browser (ex. 'http://192.168.8.1') and log in (If necessary recommended setting 'Accessibility Mode' to on and 'Login timed out' to max time);
+1. Create/add a new Browser Favorites/Bookmarks and name it Hack.
+2. Select all the JavaScript code from the 'Huawei router Hack.js' or 'README.md' file, copy and paste it into the Bookmark URL box, and save it.
+3. Open the router's local URL from your browser (ex. 'http://192.168.8.1') and log in.
 4. From the router page opened in the browser, load Hack from Bookmarks.
 
 ### Info
@@ -27,9 +27,9 @@
 - Con Huawei router Hack puoi conoscere quali sono i migliori canali (o bande) disponibili e la miglior posizione del modem o delle antenne esterne.
 
 ### Installazione e avvio
-1. Creare/aggiungere un nuovo Segnalibro/Preferito al Browser e nominarlo Hack;
-2. Selezionare tutto il codice JavaScript del file 'Huawei router Hack.js' o "README.md', copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo;
-3. Dal browser aprire l'URL locale del router (es. http://192.168.8.1) e accedere (se necessario consigliato settare 'Modalità di accessibilità' attivo e 'Scadenza Accesso' a tempo massimo);
+1. Creare/aggiungere un nuovo Segnalibro/Preferito al Browser e nominarlo Hack.
+2. Selezionare tutto il codice JavaScript del file 'Huawei router Hack.js' o "README.md', copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo.
+3. Dal browser aprire l'URL locale del router (es. http://192.168.8.1) e accedere.
 4. Dalla pagina del router aperta nel browser, caricare Hack dai Segnalibri.
 
 ### Info
