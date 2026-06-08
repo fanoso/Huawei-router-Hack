@@ -23,9 +23,9 @@ function extractXML(t,d)
 {
 	try{return d.split("</"+t+">")[0].split("<"+t+">")[1]}catch(m){return m.message}
 }
-function _4GType(d)
+function typeBand(d,n)
 {
-	for(d1="",x=0;x<90;x++)tb=Math.pow(2,x),BigInt("0x"+d)&BigInt(tb)?d1+="B"+String(x+1)+"+":"";return d1.replace(/\++$/,"");
+	for(d1="",x=0;x<90;x++)tb=Math.pow(2,x),BigInt("0x"+d)&BigInt(tb)?d1+=n+String(x+1)+"+":"";return d1.replace(/\++$/,"");
 }
 function loadbts()
 {
@@ -38,6 +38,17 @@ function loadcel()
 {
     if(localStorage.getItem(stoname["cel"])===null)localStorage.setItem(stoname["cel"],JSON.stringify({}));    
     cel=JSON.parse(localStorage.getItem(stoname["cel"]));
+}
+function stopTimeout(t)
+{
+    xh=new XMLHttpRequest;xh.open("GET","/html/home.html",!0);xh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xh.send(),xh.onload=function()
+    {
+        if(200===xh.status)
+        {
+            d=xh.responseText.split('name="csrf_token" content="');token=d[d.length-1].split('"')[0];
+            xa=new XMLHttpRequest;xa.open("POST","/api/webserver/accessibility",!0);xa.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset=UTF-8");xa.setRequestHeader("__RequestVerificationToken",token);xa.send('<?xml version="1.0" encoding="UTF-8"?><request><timeout>'+t+'</timeout></request>');
+        }
+    }
 }
 function start()
 {
@@ -59,7 +70,7 @@ function start()
             defined["nr"]="undefined"!=typeof extractXML("nrrsrp",x.responseText),defined["lte"]="undefined"!=typeof extractXML("rsrp",x.responseText),defined["nrrssi"]="undefined"!=typeof extractXML("nrrssi",x.responseText),defined["enodeb_id"]="undefined"!=typeof extractXML("enodeb_id",x.responseText);
             ["lte","nr"].forEach(function(b){if(defined[b])defltenr.push(b)});
             document.getElementsByName("nr").forEach(e=>{e.style.display=defined["nr"]?"block":"none"});/*set HTMLpage*/
-            document.getElementsByName("lte").forEach(e=>{e.style.display=defined["lte"]?"block":"none"});
+            document.getElementsByName("lte").forEach(e=>{e.style.display=defined["lte"]?"inline-block":"none"});
             document.getElementsByName("net").forEach(e=>{e.style.display=defined["nr"]&&defined["lte"]?"inline-block":"none"});
         }
         else
@@ -69,22 +80,12 @@ function start()
     loadbts();
     loadcel();
     /*stop(restart)timeout(if available)=interval of<request>*/
-    let xac=new XMLHttpRequest;xac.open("GET","/api/webserver/accessibility",!0),xac.setRequestHeader("Content-type","application/json; charset=UTF-8"),xac.send(),xac.onload=function()
+    let xa=new XMLHttpRequest;xa.open("GET","/api/webserver/accessibility",!0),xa.setRequestHeader("Content-type","application/json; charset=UTF-8"),xa.send(),xa.onload=function()
     {
-        if(200===xac.status&&xac.responseText.includes("response"))
+        if(200===xa.status&&xa.responseText.includes("response"))
         {
-            timeo=extractXML("timeout",xac.responseText);
-            setInterval(function()
-            {
-                xh=new XMLHttpRequest;xh.open("GET","/html/home.html",!0);xh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xh.send(),xh.onload=function()
-                {
-                    if(200===xh.status)
-                    {
-                        d=xh.responseText.split('name="csrf_token" content="');token=d[d.length-1].split('"')[0];
-                        xa=new XMLHttpRequest;xa.open("POST","/api/webserver/accessibility",!0);xa.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset=UTF-8");xa.setRequestHeader("__RequestVerificationToken",token);xa.send('<?xml version="1.0" encoding="UTF-8"?><request><timeout>'+timeo+'</timeout></request>');
-                    }
-                }
-            },60000*(timeo-.5));
+            t=extractXML("timeout",xa.responseText);
+            stopTimeout(t);setInterval(stopTimeout,60000*(t-.5),t);
         }
     }
 }
@@ -100,7 +101,7 @@ function currentData()
                         nrdlbandwidth,nrulbandwidth,(lte)dlbandwidth,(lte)ulbandwidth,nrearfcn,(lte)earfcn,scc_pci,pci,band,enodeb_id,cell_id,nei_cellid->..*/
         getStatus(),    /*Huawei->(LTE band aggregation status)status->CurrentNetworkTypeEx->is4gp->..*/
         getAntenna(),   /*Huawei->(antennas status)antenna_type->antenna1type+antenna2type->..*/
-        getNetmode(),   /*Huawei->(allowed bands status,indipendent)net-mode->LTEBand*/
+        getNetmode(),   /*Huawei->(allowed bands status,indipendent)net-mode->LTEBand,NRBand*/
     ]).then(function()
     {         
         setENBMainBTS();/*..<-band,nrearfcn,(lte)earfcn,enodeb_id,cell_id<-Huawei*/
@@ -167,7 +168,17 @@ function getNetmode()
 {
     return new Promise((resolve,reject)=>
     {/*get&view*/
-        let x=new XMLHttpRequest;x.open("GET","/api/net/net-mode",!0),x.setRequestHeader("Content-type","application/json; charset=UTF-8"),x.send(),x.onload=function(){if(200===x.status)ha("allowed",_4GType(extractXML("LTEBand",netmode=x.responseText))),resolve();else reject("Err Netmode:"+x.status)}
+        let x=new XMLHttpRequest;x.open("GET","/api/net/net-mode",!0),x.setRequestHeader("Content-type","application/json; charset=UTF-8"),x.send(),x.onload=function()
+        {
+            if(200===x.status)
+            {
+                netmode=x.responseText;
+                if(defined["lte"])ha("lteallowed",typeBand(extractXML("LTEBand",netmode),"B"));
+                if(defined["nr"])ha("nrallowed",typeBand(extractXML("NRBand",netmode),"N"));
+                resolve();
+            }
+            else 
+                reject("Err Netmode:"+x.status)}
     });
 }
 function setENBMainBTS()
@@ -210,7 +221,7 @@ function setENBMainBTS()
         b.display="none";
     }
 }
-function Cells()/*only LTE*/
+function Cells()/*only LTE,NR not cell_id*/
 {
     defltenr.forEach(function(b)
     {
@@ -218,7 +229,7 @@ function Cells()/*only LTE*/
         else if(celchange[b]&&!enbmainchange[b])
         {
             celchange[b]=false;
-            if(b=="lte"){p="";c=signval["cell_id"]}else{p="scc_";c=signval["enodeb_id"]+"-"+signval[p+"pci"].slice(2)}/*NR="scc_pci"&not cell_id*/
+            if(b=="lte"){p="";c=signval["cell_id"]}else{p="scc_";c=signval["enodeb_id"]+"-"+signval[p+"pci"].slice(2)}/*NR=scc_pci&not cell_id*/
             if(c&&c!="0"&&signval[b+"main"].slice(1)&&signval[b+"main"].slice(1)!="0")
             {
                 d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short'});
@@ -493,7 +504,11 @@ function clickNei(a)
 }
 function clicksetLTEBand(bs)
 {
-    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Please input LTE bands number allowed separated by '+', add 'm' to set main (example 1+3+20 or m3+7)(the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.\nAlternatively, set the band in the router settings as indicated in \"Open cell\".","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(mainband)return _2ndrun=bs,void clicksetLTEBand(String(mainband));suspend=1,ha("t","! PLEASE WAIT !"),tit("! PLEASE WAIT !"),xhrh=new XMLHttpRequest,xhrh.open("GET","/html/home.html",!0),xhrh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrh.send(),xhrh.onload=function(){if(200===xhrh.status){var datas=xhrh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){xhrp=new XMLHttpRequest,xhrp.open("POST","/api/net/net-mode",!0),xhrp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrp.setRequestHeader("__RequestVerificationToken",token),cmd="<request><NetworkMode>"+nw+"</NetworkMode><NetworkBand>3FFFFFFF</NetworkBand><LTEBand>"+ltesum+"</LTEBand></request>",xhrp.send(cmd),xhrp.onload=function(){200===xhrp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clicksetLTEBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode:"+x.status);}}),2e3)}}
+    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Please input LTE bands number allowed separated by '+', add 'm' to set main (example '1+3+20' or 'm3+7', the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(mainband)return _2ndrun=bs,void clicksetLTEBand(String(mainband));suspend=1,ha("t","! PLEASE WAIT !"),tit("! PLEASE WAIT !"),xhrh=new XMLHttpRequest,xhrh.open("GET","/html/home.html",!0),xhrh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrh.send(),xhrh.onload=function(){if(200===xhrh.status){var datas=xhrh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){xhrp=new XMLHttpRequest,xhrp.open("POST","/api/net/net-mode",!0),xhrp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrp.setRequestHeader("__RequestVerificationToken",token),cmd='<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+"</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand><LTEBand>"+ltesum+"</LTEBand>"+(defined["nr"]?"<NRBand>"+extractXML("NRBand",netmode)+"</NRBand>":"")+"</request>",xhrp.send(cmd),xhrp.onload=function(){200===xhrp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clicksetLTEBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode:"+x.status);}}),2e3)}}
+}
+function clicksetNRBand(bs)
+{
+    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Please input NR bands number allowed separated by '+', add 'm' to set main (example '1+78' or 'm38+78', the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),nrsum=0;if("AUTO"===band.toUpperCase())nrsum="4000000000000000006";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){nrsum="4000000000000000006";break}nrsum+=Math.pow(2,parseInt(bs[i])-1)}nrsum=nrsum.toString(16)}if(mainband)return _2ndrun=bs,void clicksetNRBand(String(mainband));suspend=1,ha("t","! PLEASE WAIT !"),tit("! PLEASE WAIT !"),xhrh=new XMLHttpRequest,xhrh.open("GET","/html/home.html",!0),xhrh.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrh.send(),xhrh.onload=function(){if(200===xhrh.status){var datas=xhrh.responseText.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){xhrp=new XMLHttpRequest,xhrp.open("POST","/api/net/net-mode",!0),xhrp.setRequestHeader("Content-type","application/json; charset=UTF-8"),xhrp.setRequestHeader("__RequestVerificationToken",token),cmd='<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+"</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand>"+(defined["lte"]?"<LTEBand>"+extractXML("LTEBand",netmode)+"</LTEBand>":"")+"<NRBand>"+NRsum+"</NRBand></request>",xhrp.send(cmd),xhrp.onload=function(){200===xhrp.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clicksetNRBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode:"+x.status);}}),2e3)}}
 }
 function clickNumRecMed(a,b)
 {
@@ -663,7 +678,7 @@ function ftb()
         width:var(--neitd4);
     }
     .f
-	{
+    {
 		border:1px solid %23bbb;
 		border-radius:5px;
 		padding:2px;
@@ -702,8 +717,7 @@ function ftb()
         padding:2px 5px 2px 5px;
     }
 	</style>
-	<div style="display:block;overflow:auto;position:relative;font-size:14px">
-	<div id="tit"></div>
+	<div style="display:block;overflow:auto;position:relative;font-size:14px"><div id="tit"></div>
     <div name="lte" class="f">
     RSSI:<span id="lterssi" class="val"></span><span id="medlterssi" class="med"></span><span style="float:right">ENB:<span id="lteenb" class="val"></span>&ensp;Band:<span id="lteband" class="val"></span></span><br>
     RSRP:<span id="ltersrp" class="val"></span><span id="medltersrp" class="med"></span><span style="float:right">RecordMed <input type="checkbox" id="reclte" onclick="clickRecMed(this,\'lte\');"></span><div id="bltersrp"></div>
@@ -711,13 +725,13 @@ function ftb()
     SINR:<span id="ltesinr" class="val"></span><span id="medltesinr" class="med"></span><span style="float:right;margin-top:-2px" id="storelte"></span><div id="bltesinr"></div>
     <select id="selsignlte" class="sel" onchange="clickSelSign(this.value,\'lte\')"><option value="ltesign">Signal</option><option value="ltecqi0">CQI</option></select>:<span id="ltesign" class="val"></span><span id="medltesign" class="med"></span><div id="bltesign"></div>
     </div>
-	<div name="nr" class="f">
-    NR RSSI:<span id="nrrssi" class="val"></span><span id="mednrrssi" class="med"></span><span style="float:right">ENB:<span id="nrenb" class="val"></span>&ensp;Band:<span id="nrband" class="val"></span></span><br>
+    <div name="nr" class="f">
+    NR RSSI:<span id="nrrssi" class="val"></span><span id="mednrrssi" class="med"></span><span style="float:right">ENB:<span id="nrenb" class="val"></span>&ensp;NR Band:<span id="nrband" class="val"></span></span><br>
 	NR RSRP:<span id="nrrsrp" class="val"></span><span id="mednrrsrp" class="med"></span><span style="float:right">RecordMed <input type="checkbox" id="recnr" onclick="clickRecMed(this,\'nr\');"></span><div id="bnrrsrp"></div>
     NR RSRQ:<span id="nrrsrq" class="val"></span><span id="mednrrsrq" class="med"></span><span style="float:right" id="countnr">CurrentMed:<span id="medcountnr" class="val"></span><input id="medsetcountnr" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57);" onblur="clickNumCurMed(this,\'nr\')" onfocus="this.value=\'\';"></span><div id="bnrrsrq"></div>
     NR SINR:<span id="nrsinr" class="val"></span><span id="mednrsinr" class="med"><span style="float:right;margin-top:-2px" id="storenr"></span></span><div id="bnrsinr"></div>
-    <select id="selsignnr" class="sel" onchange="clickSelSign(this.value,\'nr\')"><option value="nrsign">Signal</option><option value="nrcqi0">CQI</option></select>:<span id="nrsign" class="val"></span><span id="mednrsign" class="med"></span><div id="bnrsign"></div>
-	</div>
+    <select id="selsignnr" class="sel" onchange="clickSelSign(this.value,\'nr\')"><option value="nrsign">NR Signal</option><option value="nrcqi0">NR CQI</option></select>:<span id="nrsign" class="val"></span><span id="mednrsign" class="med"></span><div id="bnrsign"></div>
+    </div>
     <div id="nei" class="f">
     Neighbor PCI <input type="checkbox" id="neifor" onclick="clickNei(this);">
     <table id="neitaps" class="nei"></table><table id="neitab" class="nei val"></table>
@@ -728,8 +742,8 @@ function ftb()
 	</div>
 <!-- </div><div style="display:block;overflow:auto;position:relative;font-size:14px"> -->
 	<div class="f">
-    <span name="net">Force set 4G <input type="checkbox" id="force4g"></span> <button class="but" onclick="clicksetLTEBand()">Set Bands</button>
-	Allowed:<span id="allowed" class="val"></span>
+    <span name="net">Force set 4G <input type="checkbox" id="force4g"></span> <span name="lte"><button class="but" onclick="clicksetLTEBand()">Set Bands</button> Allowed:<span id="lteallowed" class="val"></span></span>
+    <span name="nr"><button class="but" onclick="clicksetNRBand()">Set NR Bands</button>NR Allowed:<span id="nrallowed" class="val"></span></span>
 	</div>
 	<div class="f">
 	ENB Id:<a id="enodeb_id" class="val" target="lteitaly" href="%23">%23</a><br>
@@ -757,7 +771,7 @@ function ftb()
 	</div>
     ');
 }
-/*current*/
+/*current value*/
 signnam=["nrrsrp"     ,"nrrsrq"      ,"nrsinr"     ,"nrrssi"    ,"nrcqi0"                   ,"nrdlbandwidth"    ,"nrulbandwidth"    ,"scc_pci"
         ,"ltersrp"    ,"ltersrq"     ,"ltesinr"    ,"lterssi"   ,"ltecqi0"                  ,"ltedlbandwidth"   ,"lteulbandwidth"   ,"pci"
         ,"band"];/*band=LTE or list LTE&NR*/
@@ -864,5 +878,5 @@ var bts_location={/*
 },bts;
 /*-------------------------*/
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=setInterval(currentData,itime);
-tit("Che la banda sia con te! by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit(),4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.3.3 by Riccardo Fanelli"),msg("Tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers"),msg("Type: netmode, signal, status, antennatype");
+tit("Che la banda sia con te! by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit(),4000),msg("Huawei router Hack 4G/5G - Base code v5.0 by miononno.it - Advanced v1.4 by Riccardo Fanelli"),msg("Tested with Huawei B818 and B636 4G router, Firefox, Edge, Chrome browsers"),msg("Type: netmode, signal, status, antennatype");
 /*in script convert char hash"#" in "%23"*/
