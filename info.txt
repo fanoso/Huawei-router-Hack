@@ -4,7 +4,7 @@
 
 ## English
 
-### What is Huawei router hack?
+### What is Huawei router Hack?
 - Huawei Router Hack is a JavaScript code that monitors and records the main radio parameters of the LTE (4G) and NR (5G) networks received by the modem, to improve reception and therefore performance.
 - With Huawei Router Hack, you can find the best channels (or bands) available and the best position for the modem or external antennas.
 
@@ -22,7 +22,7 @@
 
 ## Italiano
 
-### Cos'è Huawei router hack?
+### Cos'è Huawei router Hack?
 - Huawei router Hack è uno codice JavaScript che monitora e registra i principali parametri radio delle reti LTE(4G) e NR(5G) captate dal modem, per migliorare la ricezione e quindi le prestazioni.
 - Con Huawei router Hack puoi conoscere quali sono i migliori canali (o bande) disponibili e la miglior posizione del modem o delle antenne esterne.
 
