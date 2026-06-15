@@ -675,7 +675,7 @@ function ftb()
 	}  
     .vali
     {
-        height:11px;
+        height:13px;
         width:28px;
         font-family:inherit;
         font-size:inherit;
@@ -911,7 +911,6 @@ var bts_location={/*
 "0362005":["Borgo XX giugno S.Pietro 2,3km"     ,"B1+ B3+ N3"],
 "0362379":["1:Balanzano 4,6km"                  ,""],
 "0363379":["2:Balanzano 4,6km"                  ,""],
-
 };
 /*---*/
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=setInterval(currentData,itime);
