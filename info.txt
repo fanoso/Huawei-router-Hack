@@ -6,17 +6,17 @@
 
 ### What is Huawei router Hack?
 - Huawei Router Hack is a JavaScript code that monitors and records the main radio parameters of the LTE (4G) and NR (5G) networks received by the modem, to improve reception and therefore performance.
-- With Huawei Router Hack, you can find the best channels (or bands) available and the best position for the modem or external antennas.
+- With Huawei Router Hack you can find out which bands are available in your area and find the best position for your modem or antennas to pick up the signal.
 
 ### Installation and startup
-1. Create/add a new Browser Favorites/Bookmarks and name it Hack.
-2. Select all the JavaScript code from the 'Huawei router Hack.js' or 'README.md' file, copy and paste it into the Bookmark URL box, and save it.
+1. Create or add a new browser Favorites or Bookmarks and name it 'Hack'.
+2. Select the JavaScript code in the 'Huawei router Hack.js' or 'README.md' file, copy and paste it into the Bookmark URL box, save if necessary.
 3. Open the router's local URL from your browser (ex. 'http://192.168.8.1') and log in.
-4. From the router page opened in the browser, load Hack from Bookmarks.
+4. From the router page opened in the browser, load 'Hack' from Bookmarks.
 
 ### Info
 - Tested with **Huawei B818 and B636 4G router**, Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it - Advanced **v1.4.2** by Riccardo Fanelli.
+- Base code v5.0 by miononno.it - Advanced **v1.4.3** by Riccardo Fanelli.
 
 ---
 
@@ -24,14 +24,14 @@
 
 ### Cos'è Huawei router Hack?
 - Huawei router Hack è uno codice JavaScript che monitora e registra i principali parametri radio delle reti LTE(4G) e NR(5G) captate dal modem, per migliorare la ricezione e quindi le prestazioni.
-- Con Huawei router Hack puoi conoscere quali sono i migliori canali (o bande) disponibili e la miglior posizione del modem o delle antenne esterne.
+- Con Huawei router Hack puoi conoscere quali sono le bande disponibili in zona e trovare la miglior posizione del modem o delle antenne per captare il segnale.
 
 ### Installazione e avvio
-1. Creare/aggiungere un nuovo Segnalibro/Preferito al Browser e nominarlo Hack.
-2. Selezionare tutto il codice JavaScript del file 'Huawei router Hack.js' o "README.md', copiarlo e incollarlo nel riquadro URL del Segnalibro e salvarlo.
-3. Dal browser aprire l'URL locale del router (es. http://192.168.8.1) e accedere.
-4. Dalla pagina del router aperta nel browser, caricare Hack dai Segnalibri.
+1. Creare o aggiungere un nuovo Segnalibro o Preferito al browser e nominarlo 'Hack'.
+2. Selezionare il codice JavaScript nel file 'Huawei router Hack.js' o "README.md', copiarlo e incollarlo nel riquadro URL del Segnalibro, salvare se necessario.
+3. Dal browser aprire l'URL locale del router (es. 'http://192.168.8.1') e accedere.
+4. Dalla pagina del router aperta nel browser, caricare 'Hack' dai Segnalibri.
 
 ### Info
-- Testato con **Huawei B818 e B636 4G**, browser Firefox, Edge, Chrome.
-- Codice base v5.0 di miononno.it - Evoluzione **v1.4.2** di Riccardo Fanelli.
+- Testato con **Huawei B818 e B636 4G**, browser **Firefox, Edge, Chrome**.
+- Codice base v5.0 di miononno.it - Evoluzione **v1.4.3** di Riccardo Fanelli.
