@@ -12,7 +12,7 @@
 1. Create or add a new browser Favorites or Bookmarks and name it 'Hack'.
 2. Select the JavaScript code in the 'Huawei router Hack.js' or 'README.md' file, copy and paste it into the Bookmark URL box, save if necessary.
 3. In a browser page, open the router's local URL (ex. 'http://192.168.8.1') and log in.
-4. From the router page opened in the browser, load 'Hack' from Bookmarks.
+4. From the router page opened in the browser, load 'Hack' from Bookmarks.\
 For further start, repeat steps 3 and 4.
 
 ### Info
@@ -31,7 +31,7 @@ For further start, repeat steps 3 and 4.
 1. Creare o aggiungere un nuovo Segnalibro o Preferito al browser e nominarlo 'Hack'.
 2. Selezionare il codice JavaScript nel file 'Huawei router Hack.js' o "README.md', copiarlo e incollarlo nel riquadro URL del Segnalibro, salvare se necessario.
 3. In una pagina del browser, aprire l'URL locale del router (es. 'http://192.168.8.1') e accedere.
-4. Dalla pagina del router aperta nel browser, caricare 'Hack' dai Segnalibri.
+4. Dalla pagina del router aperta nel browser, caricare 'Hack' dai Segnalibri.\
 Nei successivi avii, ripetere passaggi 3 e 4.
 
 ### Info
