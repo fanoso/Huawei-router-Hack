@@ -17,7 +17,7 @@
 
 ### Info
 - Tested with **Huawei B818 and B636 4G router** and Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it, Advanced **v1.4.4** by Riccardo Fanelli.
+- Base code v5.0 by miononno.it, Advanced **v1.4.5** by Riccardo Fanelli.
 
 ---
 
@@ -36,7 +36,7 @@
 
 ### Info
 - Testato con **Huawei B818 e B636 4G** e browser **Firefox, Edge, Chrome**.
-- Codice base v5.0 di miononno.it, Evoluzione **v1.4.4** di Riccardo Fanelli.
+- Codice base v5.0 di miononno.it, Evoluzione **v1.4.5** di Riccardo Fanelli.
 
 ---
 
@@ -238,7 +238,7 @@ function setENBMainBTS()
 }
 function Cells()
 {
-    defltenr.forEach(b=>
+    defltenr.forEach(function(b)
     {
         if(enbmainchange[b])celchange[b]=true;/*auto save at 2nd interval*/
         else if(celchange[b]&&!enbmainchange[b])
@@ -250,13 +250,14 @@ function Cells()
                 d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short'});
                 if(c in cel)
                 {
-/*last used&change*/cel[c][6]=t;
-                    a="";if(cel[c][0]!=signval[p+"pci"])a="1";if(cel[c][1]!=signval[b+"main"])a+="2";if(cel[c][2]!=signval[b+"dlbandwidth"])a+="3";if(cel[c][3]!=signval[b+"earfcndl"])a+="4";if(cel[c][4]!=signval["enodeb_id"])a+="5";if(a)cel[c][5]="C"+a+"-"+t;
+                    a="";if(cel[c][0]!=signval[p+"pci"])a="1";if(cel[c][1]!=signval[b+"main"])a+="2";if(cel[c][2]!=signval[b+"dlbandwidth"])a+="3";if(cel[c][3]!=signval[b+"earfcndl"])a+="4";if(cel[c][4]!=signval["enodeb_id"])a+="5";
+/*change*/          if(a)
+                        cel[c]=[signval[p+"pci"],signval[b+"main"],signval[b+"dlbandwidth"],signval[b+"earfcndl"],signval["enodeb_id"],"C"+a+"-"+t,t];
+/*last*/            else
+                        cel[c][6]=t;
                 }
-                else
-                {
-/*add*/             cel[c]=[signval[p+"pci"],signval[b+"main"],signval[b+"dlbandwidth"],signval[b+"earfcndl"],signval["enodeb_id"],"A-"+t,t];
-                }
+/*add*/         else
+                    cel[c]=[signval[p+"pci"],signval[b+"main"],signval[b+"dlbandwidth"],signval[b+"earfcndl"],signval["enodeb_id"],"A-"+t,t];
                 localStorage.setItem(stoname["cel"],JSON.stringify(cel));
             }
         }
@@ -606,7 +607,7 @@ function clickStorage(tipo,b)
         r="";re1.forEach(c=>r+=c+"\n");b=new Blob([(r+"\n- In script -\n"+JSON.stringify(re2)+"\n\n- In local storage -\n"+JSON.stringify(re3)).replaceAll("],","],\n")],{type:"text/plain"});
         l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=sn+".txt";l.click();
     };
-    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>"+h0+"<b>Saves made to the browser's local storage; they are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
+    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}td{padding:2px}table{border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>"+h0+"<b>Saves made to the browser's local storage, are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
     tab();
     if(b)setTimeout(function()
     {
@@ -701,8 +702,8 @@ function ftb()
 	{
 		color:white;
 		background-color:%23888;
-		margin:2px;
-		padding:2px;
+		margin:6px;
+		padding:5px;
 		border-radius:5px;
 		text-align:center;
 		font-weight:bold;
@@ -879,7 +880,7 @@ var bts_location={/*
 "0363379":["2:Balanzano 4,6km"                  ,""],
 };
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=setInterval(currentData,itime);
-info="Huawei router Hack - Base code v5.0 by miononno.it, Advanced v1.4.4 by Riccardo Fanelli\nTested with Huawei B818 and B636 4G router and Firefox, Edge, Chrome browsers";
+info="Huawei router Hack - Base code v5.0 by miononno.it, Advanced v1.4.5 by Riccardo Fanelli\nTested with Huawei B818 and B636 4G router and Firefox, Edge, Chrome browsers";
 tit("Che la banda sia con te! Hack by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit,4000);msg(info+"\nType:netmode, signal, status, antennatype");
 /*for URLformat convert hash"#"in"%23"*/
 ```
