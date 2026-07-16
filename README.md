@@ -17,7 +17,7 @@
 
 ### Info
 - Tested with **Huawei B818 and B636 4G router** and Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it, Advanced **v1.6.0** by Riccardo Fanelli.
+- Base code v5.0 by miononno.it, Advanced **v1.6.1** by Riccardo Fanelli.
 
 ---
 
@@ -36,7 +36,7 @@
 
 ### Info
 - Testato con **Huawei B818 e B636 4G** e browser **Firefox, Edge, Chrome**.
-- Codice base v5.0 di miononno.it, Evoluzione **v1.6.0** di Riccardo Fanelli.
+- Codice base v5.0 di miononno.it, Evoluzione **v1.6.1** di Riccardo Fanelli.
 
 ---
 
@@ -76,16 +76,16 @@ function extractXML(t,d)
 {
 	try{return d.split("</"+t+">")[0].split("<"+t+">")[1]}catch(m){return m.message}
 }
-function typeBand(d,n)
+function typeBand(d)
 {
-	for(d1="",x=0;x<90;x++)tb=Math.pow(2,x),BigInt("0x"+d)&BigInt(tb)?d1+=n+String(x+1)+"+":"";return d1.replace(/\++$/,"");
+	for(d1="",x=0;x<90;x++)tb=Math.pow(2,x),BigInt("0x"+d)&BigInt(tb)?d1+=String(x+1)+"+":"";return d1.replace(/\++$/,"");
 }
 function loadBTS()
 {
     if(localStorage.getItem(stoname["bts"])===null)localStorage.setItem(stoname["bts"],JSON.stringify({}));    
     bts=JSON.parse(localStorage.getItem(stoname["bts"]));
     for(const[i,r]of Object.entries(bts_location))
-        if(!(i in bts))bts[i]=[r[0],r[1]];else msg("Double BTS location in memory, ENB Id:"+i);
+        if(!(i in bts))bts[i]=[r[0],r[1]];else msg("Double BTS location in memory, ENB Id: "+i);
 }
 function loadCel()
 {
@@ -120,15 +120,15 @@ function start()
         for(const[k]of Object.entries(defined))defined[k]="undefined"!=typeof extractXML(k=="nr"?k+"rsrp":k=="lte"?"rsrp":k,d);/*defined lte,nr,nrrssi,enodeb_id,nrcqi0,scc_pci*/
         if(defined["nr"])for(const[k]of Object.entries(defnot))if(!defined[k])defnot[k]=true;/*defined nr&undefined nrrssi,nrcqi0,scc_pci*/
         ["lte","nr"].forEach(e=>{if(defined[e])defltenr.push(e)});/*defined[lte+nr]*/
-        document.getElementsByName("nr").forEach(e=>e.style.display=defined["nr"]?"block":"none");/*set HTML*/
-        document.getElementsByName("lte").forEach(e=>e.style.display=defined["lte"]?"block":"none");
-        document.getElementsByName("net").forEach(e=>e.style.display=defined["nr"]&&defined["lte"]?"inline-block":"none");
+        if(defined["nr"])document.querySelectorAll(".nr").forEach(e=>e.style.display="block");/*set HTML*/
+        if(defined["lte"])document.querySelectorAll(".lte").forEach(e=>e.style.display="block");
+        if(defined["nr"]&&defined["lte"])document.querySelectorAll(".ltenr").forEach(e=>e.style.display="inline-block");
     });
     loadBTS();
     loadCel();
     fetch("/api/webserver/accessibility").then(r=>r.text()).then(d=>/*(if available)stop(refresh)timeout;(get)accessibility->timeout*/
     {
-        t=extractXML("timeout",d);if(t){msg("Timeout:"+t+"min");stopTimeout(t);setInterval(stopTimeout,60000*(t-.5),t)} 
+        t=extractXML("timeout",d);if(t){msg("Restart timeout: "+t+"min");stopTimeout(t);setInterval(stopTimeout,60000*(t-.5),t)} 
     });
 }
 function currentData()
@@ -167,7 +167,7 @@ function getSignal()
     {
         signal=d;
         signnam.forEach(b=>ha(b,signval[b]=extractXML(b.replace("lte",""),d)));/*signal->get&view*/
-        for(const[k,c]of Object.entries(defnot))if(c){ha(k,"");signval[k]=k=="scc_pci"?"":"0"}/*view exception undefined nr pci,rssi,cqi*/
+        for(const[k,c]of Object.entries(defnot))if(c){ha(k,"");signval[k]=k=="scc_pci"?"":"0"}/*view exception undefined nr nrrssi,nrcqi0,scc_pci*/
         signnam2.forEach(b=>signval[b]=extractXML(b.replace("lte",""),d));/*signal->get*/
         for(i=defined["nr"]?0:8,l=defined["lte"]?13:5;i<l;i++)/*convert str->num*/
         {
@@ -175,7 +175,7 @@ function getSignal()
             currval[signnam[i]]=parseFloat(signval[signnam[i]].replace(/[^0-9\.\-]/g,"")||-999);/*error=-999*/
             if(currval[signnam[i]]>999||currval[signnam[i]]<-999)currval[signnam[i]]=-999;
             if(currval[signnam[i]]>-999)currval[signnam[i]]+=(signval[signnam[i]].includes("gt")?1:signval[signnam[i]].includes("lt")?-1:0);/*extra limits">"or"<"*/
-            if(signval[signnam[i]].includes("&")||(currval[signnam[i]]==-999&&!signnam[i].includes("cqi0")))msg(signnam[i]+":"+signval[signnam[i]]);
+            if(signval[signnam[i]].includes("&")||(currval[signnam[i]]==-999&&!signnam[i].includes("cqi0")))msg(signnam[i]+": "+signval[signnam[i]]);
         }
         defltenr.forEach(b=>/*calc&view Signal% lte&nr*/
         {
@@ -204,7 +204,7 @@ function getNetmode()
 {/*bandallowed get&view*/
     return new Promise((resolve)=>{fetch("/api/net/net-mode").then(r=>r.text()).then(d=>
     {
-        netmode=d;if(defined["lte"])ha("lteallowed",typeBand(extractXML("LTEBand",d),"B"));if(defined["nr"])ha("nrallowed",typeBand(extractXML("NRBand",d),"N"));resolve();
+        netmode=d;if(defined["lte"])ha("lteallowed","B"+typeBand(extractXML("LTEBand",d)));if(defined["nr"])ha("nrallowed","N"+typeBand(extractXML("NRBand",d)));resolve();
     })});
 }
 function setENBMainBTS()
@@ -508,7 +508,7 @@ function clickNei(a)
     }
     if(a.checked)
 	{
-        neistatus=1,ee=defined["lte"]?document.getElementsByName("lte")[0]:document.getElementsByName("nr")[0],n.height=ee.clientHeight-2*parseInt(getComputedStyle(ee).padding)+"px";
+        neistatus=1,ee=defined["lte"]?document.getElementById("chlte"):document.getElementById("chnr"),n.height=ee.clientHeight-2*parseInt(getComputedStyle(ee).padding)+"px";
         td(44,28,28,0),ha("neitaps","<tr><td>ENB Id</td><td>Band</td><td>PCI</td></tr>");
     }
     else if(a.indeterminate)
@@ -525,11 +525,11 @@ function clickNei(a)
 }
 function clickSetLTEBand(bs)
 {
-    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Input LTE bands number allowed separated by '+', add 'm' to set main (example '1+3+20' or 'm3+7', the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(mainband)return _2ndrun=bs,void clickSetLTEBand(String(mainband));suspend=1,tit("! Please wait!"),fetch('/html/home.html').then(r=>r.text()).then(xhrh=>{var datas=xhrh.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){fetch("/api/net/net-mode",{method: 'POST',headers: {'__RequestVerificationToken': token,'Content-Type': 'application/xml'},body: '<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+'</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand><LTEBand>'+ltesum+'</LTEBand>'+(defined["nr"]?'<NRBand>'+extractXML("NRBand",netmode)+'</NRBand>':'')+'</request>'}).then((r)=>{200===r.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clickSetLTEBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode:"+r.status);});}),2e3)});   
+    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Input LTE bands number allowed separated by '+', add 'm' to set main (example '1+3+20' or 'm3+7', the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(mainband)return _2ndrun=bs,void clickSetLTEBand(String(mainband));suspend=1,tit("Please wait!"),fetch('/html/home.html').then(r=>r.text()).then(xhrh=>{var datas=xhrh.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){fetch("/api/net/net-mode",{method: 'POST',headers: {'__RequestVerificationToken': token,'Content-Type': 'application/xml'},body: '<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+'</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand><LTEBand>'+ltesum+'</LTEBand>'+(defined["nr"]?'<NRBand>'+extractXML("NRBand",netmode)+'</NRBand>':'')+'</request>'}).then((r)=>{200===r.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clickSetLTEBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode: "+r.status);});}),2e3)});   
 }
 function clickSetNRBand(bs)
 {
-    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Input NR bands number allowed separated by '+', add 'm' to set main (example '1+78' or 'm38+78', the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),nrsum=0;if("AUTO"===band.toUpperCase())nrsum="4000000000000000006";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){nrsum="4000000000000000006";break}nrsum+=Math.pow(2,parseInt(bs[i])-1)}nrsum=nrsum.toString(16)}if(mainband)return _2ndrun=bs,void clickSetNRBand(String(mainband));suspend=1,tit("! Please wait!"),fetch('/html/home.html').then(r=>r.text()).then(xhrh=>{var datas=xhrh.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){fetch("/api/net/net-mode",{method: 'POST',headers: {'__RequestVerificationToken': token,'Content-Type': 'application/xml'},body: '<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+'</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand>'+(defined["lte"]?'<LTEBand>'+extractXML("LTEBand",netmode)+'</LTEBand>':'')+'<NRBand>'+NRsum+'</NRBand></request>'}).then((r)=>{200===r.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clickSetNRBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode:"+r.status);});}),2e3)});
+    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Input NR bands number allowed separated by '+', add 'm' to set main (example '1+78' or 'm38+78', the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),nrsum=0;if("AUTO"===band.toUpperCase())nrsum="4000000000000000006";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){nrsum="4000000000000000006";break}nrsum+=Math.pow(2,parseInt(bs[i])-1)}nrsum=nrsum.toString(16)}if(mainband)return _2ndrun=bs,void clickSetNRBand(String(mainband));suspend=1,tit("Please wait!"),fetch('/html/home.html').then(r=>r.text()).then(xhrh=>{var datas=xhrh.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){fetch("/api/net/net-mode",{method: 'POST',headers: {'__RequestVerificationToken': token,'Content-Type': 'application/xml'},body: '<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+'</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand>'+(defined["lte"]?'<LTEBand>'+extractXML("LTEBand",netmode)+'</LTEBand>':'')+'<NRBand>'+NRsum+'</NRBand></request>'}).then((r)=>{200===r.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clickSetNRBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode: "+r.status);});}),2e3)});
 }
 function clickNumRecMed(a,b)
 {
@@ -554,7 +554,7 @@ function clickTime()
 function clickInfo()
 {
     alert("--- Definitions ---\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\n\nRSRP: Useful signal strength of the cell to which you are connected.\n\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\n\nSINR: Explicit signal quality evaluation from the ratio of the useful signal strength to interference+noise strengths.\n\nCQI / Signal: Conventional signal quality evaluation calculated by the modem and sent to the BTS which, by adjusting the signal modulation, balances data transmission speed and connection reliability. / Signal quality evaluation calculated by balancing the underlying parameters.\n\nBandwidth: bandwidth used to transmit a maximum amount of data in one second.\n\nEARFCN: Conventional identification number used to identify the uplink or downlink frequency band (no real frequancy).\n\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an BTS antenna / Short id. num. of a cell in a limited area.\n\nBTS / ENB Id: Base tower station / Id. num. of 2nd evolved node of a BTS.");
-    alert("--- Parameters ---\n--- \"Signal\" QUALITY BALANCED (set in Hack script)\nsignal_balance_rssi="+signal_balance_rssi+"%\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\n\n--- SIGNAL VALUE LIMITS (set in Hack script)\nmax_rssi="+max_rssi+"dBm\tmin_rssi="+min_rssi+"dBm\nmax_rsrp="+max_rsrp+"dBm\tmin_rsrp="+min_rsrp+"dBm\nmax_rsrq="+max_rsrq+"dB\tmin_rsrq="+min_rsrq+"dB\nmax_sinr="+max_sinr+"dB\tmin_sinr="+min_sinr+"dB\n\n--- EARFCN (add & change in Hack script)\n(list)\n\n--- EARFCN GEOGRAPHICAL AREA (set in Hack script)\ngeo_area="+geo_area+"\n\n--- BTS LOCATIONS (add & change in Hack script)\n(list)\n\n--- Other info ---\nSignal, band and cell parameters if not specified are LTE.\nThe Hack script processes the parameters made available by the router API.\n"+info);
+    alert("--- Parameters ---\n--- \"Signal\" QUALITY BALANCED (set in Hack script)\nsignal_balance_rssi="+signal_balance_rssi+"%\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\n\n--- SIGNAL VALUE LIMITS (set in Hack script)\nmax_rssi="+max_rssi+"dBm\tmin_rssi="+min_rssi+"dBm\nmax_rsrp="+max_rsrp+"dBm\tmin_rsrp="+min_rsrp+"dBm\nmax_rsrq="+max_rsrq+"dB\tmin_rsrq="+min_rsrq+"dB\nmax_sinr="+max_sinr+"dB\tmin_sinr="+min_sinr+"dB\n\n--- EARFCN (add & change in Hack script)\n(list)\n\n--- EARFCN GEOGRAPHICAL AREA (set in Hack script)\ngeo_area="+geo_area+"\n\n--- BTS LOCATIONS (add & change in Hack script)\n(permanent list)\n\n--- Other info ---\nSignal, band and cell parameters if not specified are LTE.\nWith 4G+5G modem, external antenna are 5G.\nThe Hack script processes the parameters made available by the router API.\n"+info);
 }
 function clickStorage(tipo,b)
 {
@@ -660,6 +660,15 @@ function ftb()
         font-family:inherit;
         font-size:inherit;
     }
+    .valr
+    {
+        float:right;
+    }
+    .valm
+    {
+        position:absolute;
+        left:9em;
+    }
     .sel
     {
         height:20px;
@@ -668,12 +677,18 @@ function ftb()
         font-family:inherit;
         font-size:inherit;
     }
-    %23nei
+    .but,.but2
     {
-        position:relative;
-        width:12em;
-        height:2em;
-        overflow:hidden; 
+        font-weight:bold;
+        background-color:%23448;
+        border:none;
+        color:white;
+        padding:5px;
+        border-radius:5px;
+    }
+    .but2
+    {
+        padding:2px 5px 2px 5px;
     }
     .nei
     {
@@ -697,7 +712,7 @@ function ftb()
     {
         width:var(--neitd4);
     }
-    .f
+    .f,.fc
     {
 		border:1px solid %23bbb;
 		border-radius:5px;
@@ -706,68 +721,43 @@ function ftb()
 		margin:2px;
         float:left;
         position:relative;
+    }
+    .f
+    {
         display:inline;
     }
-	%23tit
-	{
-		color:white;
-		background-color:%23888;
-		margin:6px;
-		padding:5px;
-		border-radius:5px;
-		text-align:center;
-		font-weight:bold;
-	}
-    .med
+    .lte,.nr,.ltenr
     {
-        position:absolute;
-        left:9em;
-    }
-    .fr
-    {
-        float:right;
-    }
-    .but,.but2
-    {
-        font-weight:bold;
-        background-color:%23448;
-        border:none;
-        color:white;
-        padding:5px;
-        border-radius:5px;
-    }
-    .but2
-    {
-        padding:2px 5px 2px 5px;
+        display:none;
     }
 	</style>
 	<div style="position:relative;display:inline-block;width:calc(100% - 7em);font-size:14px;overflow:auto">
-    <div id="tit"></div>
-    <div name="lte" class="f">
-    RSSI:<span id="lterssi" class="val"></span><span id="medlterssi" class="med"></span><span class="fr">ENB:<span id="lteenb" class="val"></span>&ensp;Band:<span id="lteband" class="val"></span></span><br>
-    RSRP:<span id="ltersrp" class="val"></span><span id="medltersrp" class="med"></span><span class="fr">RecordMed <input type="checkbox" id="reclte" onclick="clickRecMed(this,\'lte\')"></span><div id="bltersrp"></div>
-    RSRQ:<span id="ltersrq" class="val"></span><span id="medltersrq" class="med"></span><span class="fr" id="countlte">CurrentMed:<span id="medcountlte" class="val"></span><input id="medsetcountlte" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57)" onblur="clickNumCurMed(this,\'lte\')" onfocus="this.value=\'\'"></span><div id="bltersrq"></div>
-    SINR:<span id="ltesinr" class="val"></span><span id="medltesinr" class="med"></span><span class="fr" id="storelte" style="margin-top:-2px"></span><div id="bltesinr"></div>
-    <select id="selsignlte" class="sel" onchange="clickSelSign(this.value,\'lte\')"><option value="ltesign">Signal</option><option value="ltecqi0">CQI</option></select>:<span id="ltesign" class="val"></span><span id="medltesign" class="med"></span><div id="bltesign"></div>
+    <div id="tit" style="color:white;background-color:%23888;margin:6px;padding:5px;border-radius:5px;text-align:center;font-weight:bold"></div>
+    <div id="chlte" class="fc lte">
+    RSSI:<span id="lterssi" class="val"></span><span id="medlterssi" class="valm"></span><span class="valr">ENB:<span id="lteenb" class="val"></span>&ensp;Band:<span id="lteband" class="val"></span></span><br>
+    RSRP:<span id="ltersrp" class="val"></span><span id="medltersrp" class="valm"></span><span class="valr">RecordMed <input type="checkbox" id="reclte" onclick="clickRecMed(this,\'lte\')"></span><div id="bltersrp"></div>
+    RSRQ:<span id="ltersrq" class="val"></span><span id="medltersrq" class="valm"></span><span class="valr" id="countlte">CurrentMed:<span id="medcountlte" class="val"></span><input id="medsetcountlte" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57)" onblur="clickNumCurMed(this,\'lte\')" onfocus="this.value=\'\'"></span><div id="bltersrq"></div>
+    SINR:<span id="ltesinr" class="val"></span><span id="medltesinr" class="valm"></span><span class="valr" id="storelte" style="margin-top:-2px"></span><div id="bltesinr"></div>
+    <select id="selsignlte" class="sel" onchange="clickSelSign(this.value,\'lte\')"><option value="ltesign">Signal</option><option value="ltecqi0">CQI</option></select>:<span id="ltesign" class="val"></span><span id="medltesign" class="valm"></span><div id="bltesign"></div>
     </div>
-    <div name="nr" class="f">
-    NR RSSI:<span id="nrrssi" class="val"></span><span id="mednrrssi" class="med"></span><span class="fr">ENB:<span id="nrenb" class="val"></span>&ensp;NR Band:<span id="nrband" class="val"></span></span><br>
-	NR RSRP:<span id="nrrsrp" class="val"></span><span id="mednrrsrp" class="med"></span><span class="fr">RecordMed <input type="checkbox" id="recnr" onclick="clickRecMed(this,\'nr\')"></span><div id="bnrrsrp"></div>
-    NR RSRQ:<span id="nrrsrq" class="val"></span><span id="mednrrsrq" class="med"></span><span class="fr" id="countnr">CurrentMed:<span id="medcountnr" class="val"></span><input id="medsetcountnr" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57)" onblur="clickNumCurMed(this,\'nr\')" onfocus="this.value=\'\'"></span><div id="bnrrsrq"></div>
-    NR SINR:<span id="nrsinr" class="val"></span><span id="mednrsinr" class="med"><span class="fr" id="storenr" style="margin-top:-2px"></span></span><div id="bnrsinr"></div>
-    <select id="selsignnr" class="sel" onchange="clickSelSign(this.value,\'nr\')"><option value="nrsign">NR Signal</option><option value="nrcqi0">NR CQI</option></select>:<span id="nrsign" class="val"></span><span id="mednrsign" class="med"></span><div id="bnrsign"></div>
+    <div id="chnr" class="fc nr">
+    NR RSSI:<span id="nrrssi" class="val"></span><span id="mednrrssi" class="valm"></span><span class="valr">ENB:<span id="nrenb" class="val"></span>&ensp;NR Band:<span id="nrband" class="val"></span></span><br>
+	NR RSRP:<span id="nrrsrp" class="val"></span><span id="mednrrsrp" class="valm"></span><span class="valr">RecordMed <input type="checkbox" id="recnr" onclick="clickRecMed(this,\'nr\')"></span><div id="bnrrsrp"></div>
+    NR RSRQ:<span id="nrrsrq" class="val"></span><span id="mednrrsrq" class="valm"></span><span class="valr" id="countnr">CurrentMed:<span id="medcountnr" class="val"></span><input id="medsetcountnr" class="vali" maxlength="4" onkeypress="return(event.charCode>=48&&event.charCode<=57)" onblur="clickNumCurMed(this,\'nr\')" onfocus="this.value=\'\'"></span><div id="bnrrsrq"></div>
+    NR SINR:<span id="nrsinr" class="val"></span><span id="mednrsinr" class="valm"><span class="valr" id="storenr" style="margin-top:-2px"></span></span><div id="bnrsinr"></div>
+    <select id="selsignnr" class="sel" onchange="clickSelSign(this.value,\'nr\')"><option value="nrsign">NR Signal</option><option value="nrcqi0">NR CQI</option></select>:<span id="nrsign" class="val"></span><span id="mednrsign" class="valm"></span><div id="bnrsign"></div>
     </div>
-    <div id="nei" class="f">
+    <div id="nei" class="f" style="position:relative;width:12em;height:2em;overflow:hidden">
     Neighbor PCI <input id="neifor" type="checkbox" onclick="clickNei(this)">
     <table id="neitaps" class="nei"></table><table id="neitab" class="nei val"></table>
     <span style="position:absolute;bottom:0"><span id="neireclte"></span><br><span id="neirecnr"></span></span>
     </div>
     <div class="f">
-	<span name="net">5G&nbsp;</span>Antennas:<span id="a1" class="val"></span>-<span id="a2" class="val"></span>
+	<span class="nr">5G&nbsp;</span>Antennas:<span id="a1" class="val"></span>-<span id="a2" class="val"></span>
 	</div>
 	<div class="f">
-    <span name="net">Force set 4G <input id="force4g" type="checkbox"></span><span name="lte"><button class="but" onclick="clickSetLTEBand()">Set Bands</button>  Allowed:<span id="lteallowed" class="val"></span></span>
-    <span name="nr"><button class="but" onclick="clickSetNRBand()">Set NR Bands</button> NR Allowed:<span id="nrallowed" class="val"></span></span>
+    <span class="ltenr">Force set only 4G <input id="force4g" type="checkbox"></span><span class="lte"><button class="but" onclick="clickSetLTEBand()">Set Bands</button>  Allowed:<span id="lteallowed" class="val"></span></span>
+    <span class="nr"><button class="but" onclick="clickSetNRBand()">Set NR Bands</button> NR Allowed:<span id="nrallowed" class="val"></span></span>
 	</div>
 	<div class="f">
 	ENB Id:<a id="enodeb_id" class="val" target="lteitaly" href="%23">%23</a><br>
@@ -775,11 +765,11 @@ function ftb()
     Availables:<span id="bandsbts" class="val"></span>
 	</div>
 	<div class="f">
-    <span name="lte">
+    <span class="lte">
     PCI:<span id="pci" class="val"></span><br>
  	Main:<span id="ltemain" class="val"></span> <span id="ltedlbandwidth" class="val"></span><span id="lteulbandwidth" class="val"></span> <span id="mode" class="val"></span>
     </span>
-    <span name="nr">
+    <span class="nr">
     NR PCI:<span id="scc_pci" class="val"></span><br>
     NR Main:<span id="nrmain" class="val"></span> <span id="nrdlbandwidth" class="val"></span><span id="nrulbandwidth" class="val"></span>
     </span>
@@ -894,7 +884,7 @@ var bts_location={/*
 "0363379":["2:Balanzano 4,6km"                  ,""],
 };
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=setInterval(currentData,itime);
-info="Huawei router Hack - Base code v5.0 by miononno.it, Advanced v1.6.0 by Riccardo Fanelli.\nTested with Huawei B818 and B636 4G router and Firefox, Edge, Chrome browsers.";
-tit("Che la banda sia con te! Hack by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit,4000);msg(info+"\nType:netmode, signal, status, antennatype");
-/*for URLformat convert hash"#"in"%23"*/
+info="Huawei router Hack - Base code v5.0 by miononno.it, Advanced v1.6.1 by Riccardo Fanelli.\nTested with Huawei B818 and B636 4G router and Firefox, Edge, Chrome browsers.";
+tit("Che la banda sia con te! Hack by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit,4000);msg(info+"\nType: netmode, signal, status, antennatype");
+/*for URLformat "#"in"%23"*/
 ```
