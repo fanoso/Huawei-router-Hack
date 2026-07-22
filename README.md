@@ -17,7 +17,7 @@
 
 ### Info
 - Tested with **Huawei B818 and B636 4G router** and Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it, Advanced **v1.6.1** by Riccardo Fanelli.
+- Base code v5.0 by miononno.it, Advanced **v1.6.2** by Riccardo Fanelli.
 
 ---
 
@@ -36,7 +36,7 @@
 
 ### Info
 - Testato con **Huawei B818 e B636 4G** e browser **Firefox, Edge, Chrome**.
-- Codice base v5.0 di miononno.it, Evoluzione **v1.6.1** di Riccardo Fanelli.
+- Codice base v5.0 di miononno.it, Evoluzione **v1.6.2** di Riccardo Fanelli.
 
 ---
 
@@ -118,7 +118,7 @@ function start()
         else
             document.getElementById("enodeb_id").setAttribute("href","https://www.cellmapper.net");
         for(const[k]of Object.entries(defined))defined[k]="undefined"!=typeof extractXML(k=="nr"?k+"rsrp":k=="lte"?"rsrp":k,d);/*defined lte,nr,nrrssi,enodeb_id,nrcqi0,scc_pci*/
-        if(defined["nr"])for(const[k]of Object.entries(defnot))if(!defined[k])defnot[k]=true;/*defined nr&undefined nrrssi,nrcqi0,scc_pci*/
+        if(defined["nr"])for(const[k]of Object.entries(defnot))if(!defined[k])defnot[k]=true;/*defined nr&exception undefined nrrssi,nrcqi0,scc_pci*/
         ["lte","nr"].forEach(e=>{if(defined[e])defltenr.push(e)});/*defined[lte+nr]*/
         if(defined["nr"])document.querySelectorAll(".nr").forEach(e=>e.style.display="block");/*set HTML*/
         if(defined["lte"])document.querySelectorAll(".lte").forEach(e=>e.style.display="block");
@@ -167,7 +167,7 @@ function getSignal()
     {
         signal=d;
         signnam.forEach(b=>ha(b,signval[b]=extractXML(b.replace("lte",""),d)));/*signal->get&view*/
-        for(const[k,c]of Object.entries(defnot))if(c){ha(k,"");signval[k]=k=="scc_pci"?"":"0"}/*view exception undefined nr nrrssi,nrcqi0,scc_pci*/
+        for(const[k,c]of Object.entries(defnot))if(c){ha(k,"");signval[k]=k=="scc_pci"?"":"0"}/*view&set exception undefined nr nrrssi,nrcqi0,scc_pci*/
         signnam2.forEach(b=>signval[b]=extractXML(b.replace("lte",""),d));/*signal->get*/
         for(i=defined["nr"]?0:8,l=defined["lte"]?13:5;i<l;i++)/*convert str->num*/
         {
@@ -204,7 +204,7 @@ function getNetmode()
 {/*bandallowed get&view*/
     return new Promise((resolve)=>{fetch("/api/net/net-mode").then(r=>r.text()).then(d=>
     {
-        netmode=d;if(defined["lte"])ha("lteallowed","B"+typeBand(extractXML("LTEBand",d)));if(defined["nr"])ha("nrallowed","N"+typeBand(extractXML("NRBand",d)));resolve();
+        netmode=d;if(defined["lte"])ha("lteallowed",typeBand(extractXML("LTEBand",d)));if(defined["nr"])ha("nrallowed",typeBand(extractXML("NRBand",d)));resolve();
     })});
 }
 function setENBMainBTS()
@@ -250,7 +250,7 @@ function Cells()
             if(b=="lte")
                 {p="";c=signval["cell_id"]}
             else
-                {p="scc_";c=signval["enodeb_id"]+"-"+signval[p+"pci"]+"-"+signval[b+"earfcndl"]}/*not NRcell in API;NRcell=enodeb_id+scc_pci(if available)+earfcn*/
+                {p="scc_";c=signval["enodeb_id"]+"-"+(defnot[p+"pci"]?"":signval[p+"pci"])+"-"+signval[b+"earfcndl"]}/*not NRcell in API;NRcell=enodeb_id+scc_pci(if available)+earfcn*/
             if(c&&c!="0"&&signval[b+"main"].slice(1)&&signval[b+"main"].slice(1)!="0")
             {
                 d=new Date();t=d.toLocaleString(navigator.language,{dateStyle: 'short'});
@@ -390,7 +390,6 @@ function medCalc()
                     curmedsign[b]=0;
                     ha("med"+p,"");
                 }
-                
             }
     }
     currnei.forEach((v,k)=>/*recnei*/
@@ -525,11 +524,11 @@ function clickNei(a)
 }
 function clickSetLTEBand(bs)
 {
-    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Input LTE bands number allowed separated by '+', add 'm' to set main (example '1+3+20' or 'm3+7', the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(mainband)return _2ndrun=bs,void clickSetLTEBand(String(mainband));suspend=1,tit("Please wait!"),fetch('/html/home.html').then(r=>r.text()).then(xhrh=>{var datas=xhrh.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){fetch("/api/net/net-mode",{method: 'POST',headers: {'__RequestVerificationToken': token,'Content-Type': 'application/xml'},body: '<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+'</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand><LTEBand>'+ltesum+'</LTEBand>'+(defined["nr"]?'<NRBand>'+extractXML("NRBand",netmode)+'</NRBand>':'')+'</request>'}).then((r)=>{200===r.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clickSetLTEBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode: "+r.status);});}),2e3)});   
+    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Input LTE bands number allowed separated by '+', add 'm' to set main (ex. '1+3+20' or 'm3+7'); the main setting may have changed or not been accepted by the modem.\nFor use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),ltesum=0;if("AUTO"===band.toUpperCase())ltesum="7FFFFFFFFFFFFFFF";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){ltesum="7FFFFFFFFFFFFFFF";break}ltesum+=Math.pow(2,parseInt(bs[i])-1)}ltesum=ltesum.toString(16)}if(mainband)return _2ndrun=bs,void clickSetLTEBand(String(mainband));suspend=1,tit("Please wait!"),fetch('/html/home.html').then(r=>r.text()).then(xhrh=>{var datas=xhrh.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){fetch("/api/net/net-mode",{method: 'POST',headers: {'__RequestVerificationToken': token,'Content-Type': 'application/xml'},body: '<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+'</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand><LTEBand>'+ltesum+'</LTEBand>'+(defined["nr"]?'<NRBand>'+extractXML("NRBand",netmode)+'</NRBand>':'')+'</request>'}).then((r)=>{200===r.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clickSetLTEBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode: "+r.status);});}),2e3)});   
 }
 function clickSetNRBand(bs)
 {
-    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Input NR bands number allowed separated by '+', add 'm' to set main (example '1+78' or 'm38+78', the main setting is cyclically reworked by the modem). For use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),nrsum=0;if("AUTO"===band.toUpperCase())nrsum="4000000000000000006";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){nrsum="4000000000000000006";break}nrsum+=Math.pow(2,parseInt(bs[i])-1)}nrsum=nrsum.toString(16)}if(mainband)return _2ndrun=bs,void clickSetNRBand(String(mainband));suspend=1,tit("Please wait!"),fetch('/html/home.html').then(r=>r.text()).then(xhrh=>{var datas=xhrh.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){fetch("/api/net/net-mode",{method: 'POST',headers: {'__RequestVerificationToken': token,'Content-Type': 'application/xml'},body: '<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+'</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand>'+(defined["lte"]?'<LTEBand>'+extractXML("LTEBand",netmode)+'</LTEBand>':'')+'<NRBand>'+NRsum+'</NRBand></request>'}).then((r)=>{200===r.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clickSetNRBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode: "+r.status);});}),2e3)});
+    var band;if(mainband&&(mainband=null),0==arguments.length){if((band=prompt("Input NR bands number allowed separated by '+', add 'm' to set main (ex. '1+78' or 'm38+78'); the main setting may have changed or not been accepted by the modem.\nFor use every supported bands, write 'AUTO'.","AUTO"))&&(band=band.toLowerCase()),null==band||""===band)return}else var band=arguments[0];var bs=band.split("+"),nrsum=0;if("AUTO"===band.toUpperCase())nrsum="4000000000000000006";else{for(var i=0;i<bs.length;i++){if(-1!=bs[i].toLowerCase().indexOf("m")&&(bs[i]=bs[i].replace("m",""),mainband=bs[i]),"AUTO"===bs[i].toUpperCase()){nrsum="4000000000000000006";break}nrsum+=Math.pow(2,parseInt(bs[i])-1)}nrsum=nrsum.toString(16)}if(mainband)return _2ndrun=bs,void clickSetNRBand(String(mainband));suspend=1,tit("Please wait!"),fetch('/html/home.html').then(r=>r.text()).then(xhrh=>{var datas=xhrh.split('name="csrf_token" content="'),token=datas[datas.length-1].split('"')[0],nw="00";document.getElementById("force4g").checked&&(nw="03"),console.log(nw),setTimeout((function(){fetch("/api/net/net-mode",{method: 'POST',headers: {'__RequestVerificationToken': token,'Content-Type': 'application/xml'},body: '<?xml version="1.0" encoding="UTF-8"?><request><NetworkMode>'+nw+'</NetworkMode><NetworkBand>3FFFFFFFFFFFFFFF</NetworkBand>'+(defined["lte"]?'<LTEBand>'+extractXML("LTEBand",netmode)+'</LTEBand>':'')+'<NRBand>'+NRsum+'</NRBand></request>'}).then((r)=>{200===r.status?(ha("band",'<span style="color:green;">OK</span>'),_2ndrun?window.setTimeout((function(){clickSetNRBand(_2ndrun.join("+")),_2ndrun=!1}),2e3):(suspend=0,tit())):msg("Err net-mode: "+r.status);});}),2e3)});
 }
 function clickNumRecMed(a,b)
 {
@@ -558,26 +557,26 @@ function clickInfo()
 }
 function clickStorage(tipo,b)
 {
-    sn=stoname[tipo];
+    sn=stoname[tipo];if(localStorage.getItem(sn)===null)localStorage.setItem(sn,JSON.stringify([]));
     if(tipo=="rec")
     {
         wwi=1700;savq=["Input new record info (optional)."],savl=[35];
         h0="*PCI(number detections).<br>";h1="Records:",h2="For analysis of recordings, select table, copy and paste it into an Excel sheet or 'Export' in .txt format.";
         re1=[["","Date and Time","Info","Network","Antennas","ENB Id","Band","Count-Time","RSRP","","","SINR","","","RSRQ","","","RSSI","Signal","","","CQI","","","Neighbor PCI"],["","","","",(defined["nr"]&&defined["lte"]?"5G":""),"","","","Med","Max","Min","Med","Max","Min","Med","Max","Min","Med","Med","Max","Min","Med","Max","Min","1st(N)-2nd(N)-3rd(N)-4th(N)*"]];
         re2=[];
-        if(localStorage.getItem(sn)===null)localStorage.setItem(sn,JSON.stringify([]));re3=JSON.parse(localStorage.getItem(sn));
+        re3=JSON.parse(localStorage.getItem(sn));
     }
     if(tipo=="bts")
     {
         wwi=900;savq=["Input new BTS location name (optional).\nThe BTS location name and available bands can also be permanently inserted directly into the Hack script.\nSearch for information about BTS locations on websites (ex. cellmapper.net or lteitaly.it).","Input availables BTS bands (optional)."],savl=[35,35];
-        h0="*Douplicate.<br>";h1="Locations:",h2="To permanently save locations, add them manually to the bottom of the Hack script (grey in table).";
+        h0="*Douplicate.<br>";h1="Locations:",h2="The values may be subject to change by the network operator.<br>To permanently save locations, add them manually to the bottom of the Hack script (grey in table).";
         re1=[["ENB Id","BTS location name","Availables bands"]];
         re2=JSON.parse(JSON.stringify(bts_location));
         re3=JSON.parse(localStorage.getItem(sn));
     }
     if(tipo=="cel")
     {
-        wwi=1100;h0="*Douplicate. **Changes:1 PCI, 2 Band, 3 Bandwidth, 4 EARFCN, 5 ENB. ***Add number of uses and calc averge 'Signal' for number of uses when connecting to the cell.<br>";h1="Cells:",h2="The update and saving are automatic when connecting in the second interval to the cell as main band.<br>The values may be subject to change by the network operator and The 'PCI' number may be duplicated and not correctly identifiable in neighboring cells.<br>'Cell Id' not available for NR in modem API, the alternative value may not be unique and may not work properly.<br>You can use 'PCI' and 'EARFCN download' parameters to set the use of bands and specific cells (if available) in '192.168.8.1/->...->System Settings->Developer options->Band selection->...'.";
+        wwi=1100;h0="*Douplicate. **Changes:1 PCI, 2 Band, 3 Bandwidth, 4 EARFCN, 5 ENB. ***Add of NumberUsed and calc of average Signal/NumUse take place at the moment of connection to the cell.<br>";h1="Cells:",h2="The update and saving are automatic when connecting in the second interval to the cell as main band.<br>The values may be subject to change by the network operator and The 'PCI' number may be duplicated and not correctly identifiable in neighboring cells.<br>'Cell Id' not available for NR in modem API, the alternative value may not be unique and may not work properly.<br>You can use 'PCI' and 'EARFCN download' parameters to set the use of bands and specific cells (if available) in '192.168.8.1/->...->System Settings->Developer options->Band selection->...'.";
         re1=[["Cell Id","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Add/Change**","Last use","NumUse-MedSig***"]];
         re2=[];
         re3=JSON.parse(localStorage.getItem(sn));re3s=JSON.parse(JSON.stringify(re3));
@@ -788,40 +787,40 @@ function ftb()
     ');
 }
 /*current value*/
-signnam=["nrrsrp"     ,"nrrsrq"      ,"nrsinr"     ,"nrrssi"    ,"nrcqi0"                   ,"nrdlbandwidth"    ,"nrulbandwidth"    ,"scc_pci"
-        ,"ltersrp"    ,"ltersrq"     ,"ltesinr"    ,"lterssi"   ,"ltecqi0"                  ,"ltedlbandwidth"   ,"lteulbandwidth"   ,"pci"
-        ,"band"];
-signnam2=["nrearfcn"  ,"lteearfcn"   ,"enodeb_id","cell_id","nei_cellid"];/*no wiew*/
-signval={"nrrsrp" :"" ,"nrrsrq" :""  ,"nrsinr" :"" ,"nrrssi" :"","nrcqi0": ""  ,"nrsign":"" ,"nrdlbandwidth":"" ,"nrulbandwidth":"" ,"scc_pci":"","nrearfcn":""        ,"nrmain":"" ,"nrearfcndl":"" ,"nrearfcnul":""
-        ,"ltersrp":"" ,"ltersrq":""  ,"ltesinr":"" ,"lterssi":"","ltecqi0":""  ,"ltesign":"","ltedlbandwidth":"","lteulbandwidth":"","pci":""    ,"lteearfcn":""
-        ,"ltemain":"","lteearfcndl":"","lteearfcnul":""
-        ,"band":"","enodeb_id":"","cell_id":"","nei_cellid":"","plmn":""};
-currval={"nrrsrp":0   ,"nrrsrq":0    ,"nrsinr":0   ,"nrrssi":0  ,"nrcqi0":0    ,"nrsign":0
-        ,"ltersrp":0  ,"ltersrq":0   ,"ltesinr":0  ,"lterssi":0 ,"ltecqi0":0   ,"ltesign":0};
-currcha={"nrrsrp":[]  ,"nrrsrq":[]   ,"nrsinr":[]               ,"nrcqi0":[]   ,"nrsign":[]
-        ,"ltersrp":[] ,"ltersrq":[]  ,"ltesinr":[]              ,"ltecqi0":[]  ,"ltesign":[]};
-currnei=[],currant={1:"",2:""};
+signnam= ["nrrsrp"      ,"nrrsrq"      ,"nrsinr"      ,"nrrssi"    ,"nrcqi0"                   ,"nrdlbandwidth"    ,"nrulbandwidth"    ,"scc_pci"
+         ,"ltersrp"     ,"ltersrq"     ,"ltesinr"     ,"lterssi"   ,"ltecqi0"                  ,"ltedlbandwidth"   ,"lteulbandwidth"   ,"pci"
+         ,"band"];
+signnam2=["nrearfcn"  ,"lteearfcn","enodeb_id","cell_id","nei_cellid"];/*no wiew*/
+signval= {"nrrsrp" :""  ,"nrrsrq" :""  ,"nrsinr" :""  ,"nrrssi" :"","nrcqi0": ""  ,"nrsign":"" ,"nrdlbandwidth":"" ,"nrulbandwidth":"" ,"scc_pci":"","nrearfcn":""         ,"nrmain":"" ,"nrearfcndl":"" ,"nrearfcnul":""
+         ,"ltersrp":""  ,"ltersrq":""  ,"ltesinr":""  ,"lterssi":"","ltecqi0":""  ,"ltesign":"","ltedlbandwidth":"","lteulbandwidth":"","pci":""    ,"lteearfcn":""
+         ,"ltemain":"","lteearfcndl":"","lteearfcnul":"","band":"","enodeb_id":"","cell_id":"","nei_cellid":"","plmn":""};
+currval= {"nrrsrp":0    ,"nrrsrq":0    ,"nrsinr":0    ,"nrrssi":0  ,"nrcqi0":0    ,"nrsign":0
+         ,"ltersrp":0   ,"ltersrq":0   ,"ltesinr":0   ,"lterssi":0 ,"ltecqi0":0   ,"ltesign":0};
+currcha= {"nrrsrp":[]   ,"nrrsrq":[]   ,"nrsinr":[]                ,"nrcqi0":[]   ,"nrsign":[]
+         ,"ltersrp":[]  ,"ltersrq":[]  ,"ltesinr":[]               ,"ltecqi0":[]  ,"ltesign":[]};
+currant={1:"",2:""};
+selsign={"lte":"ltesign","nr":"nrsign"},selsignnot={"lte":"ltecqi0","nr":"nrcqi0"};/*assign 1st select/notSel*/
+currnei=[],neistatus=0;/*status neighborCell 0off1min2max*/
 /*recMed*/
-recmax={"nrrsrp":-999 ,"nrrsrq":-999 ,"nrsinr":-999             ,"nrcqi0":-999 ,"nrsign":-999 
-       ,"ltersrp":-999,"ltersrq":-999,"ltesinr":-999            ,"ltecqi0":-999,"ltesign":-999};
-recmin={"nrrsrp":999  ,"nrrsrq":999  ,"nrsinr":999              ,"nrcqi0":999  ,"nrsign":999  
-       ,"ltersrp":999 ,"ltersrq":999 ,"ltesinr":999             ,"ltecqi0":999 ,"ltesign":999};
-recmed={"nrrsrp":0    ,"nrrsrq":0    ,"nrsinr":0    ,"nrrssi":0 ,"nrcqi0":0    ,"nrsign":0   
-       ,"ltersrp":0   ,"ltersrq":0   ,"ltesinr":0   ,"lterssi":0,"ltecqi0":0   ,"ltesign":0};
-recmedcha={"nrrsrp":[] ,"nrrsrq":[]  ,"nrsinr":[]               ,"nrcqi0":[]   ,"nrsign":[]
-          ,"ltersrp":[],"ltersrq":[] ,"ltesinr":[]              ,"ltecqi0":[]  ,"ltesign":[]};
+recmax=  {"nrrsrp":-999 ,"nrrsrq":-999 ,"nrsinr":-999              ,"nrcqi0":-999 ,"nrsign":-999 
+         ,"ltersrp":-999,"ltersrq":-999,"ltesinr":-999             ,"ltecqi0":-999,"ltesign":-999};
+recmin=  {"nrrsrp":999  ,"nrrsrq":999  ,"nrsinr":999               ,"nrcqi0":999  ,"nrsign":999  
+         ,"ltersrp":999 ,"ltersrq":999 ,"ltesinr":999              ,"ltecqi0":999 ,"ltesign":999};
+recmed=  {"nrrsrp":0    ,"nrrsrq":0    ,"nrsinr":0    ,"nrrssi":0  ,"nrcqi0":0    ,"nrsign":0   
+         ,"ltersrp":0   ,"ltersrq":0   ,"ltesinr":0   ,"lterssi":0 ,"ltecqi0":0   ,"ltesign":0};
+recmedcha={"nrrsrp":[]  ,"nrrsrq":[]   ,"nrsinr":[]                ,"nrcqi0":[]   ,"nrsign":[]
+         ,"ltersrp":[]  ,"ltersrq":[]  ,"ltesinr":[]               ,"ltecqi0":[]  ,"ltesign":[]};
+recant="",recenb={"lte":"","nr":""},recband={"lte":"","nr":""};
+recpause={"lte":"","nr":""},recenbpause={"lte":"►","nr":"►"},recbandpause={"lte":"►","nr":"►"},recmaxcount={"lte":999,"nr":999},reccount={"lte":0,"nr":0},recstatus={"lte":0,"nr":0};/*status 0off1on2pause3end*/
 recnumnei={"lte":{},"nr":{}},recneires={"lte":"","nr":""};
-recmaxcount={"lte":999,"nr":999},reccount={"lte":0,"nr":0},recstatus={"lte":0,"nr":0};/*status 0off1on2pause3end*/
-recenb={"lte":"","nr":""},recband={"lte":"","nr":""},recpause={"lte":"","nr":""},recenbpause={"lte":"►","nr":"►"},recbandpause={"lte":"►","nr":"►"},recvalnot={"lte":false,"nr":false},recant="";
+recvalnot={"lte":false,"nr":false};
 /*curMed*/
 curmed={"nrrsrp":[],"nrrsrq":[],"nrsinr":[],"nrsign":[],"nrcqi0":[],"ltersrp":[],"ltersrq":[],"ltesinr":[],"ltesign":[],"ltecqi0":[]},curmedsign={"lte":0,"nr":0};
 curmaxcount={"lte":0,"nr":0},curstatus={"lte":0,"nr":0};/*status 0off1on*/
 /*other*/
 stoname={"rec":"Hack_recmed","bts":"Hack_locbts","cel":"Hack_cells"},cel={},bts={};
-defined={"lte":false,"nr":false,"nrrssi":false,"enodeb_id":false,"nrcqi0":false,"scc_pci":false},defnot={"nrrssi":false,"nrcqi0":false,"scc_pci":false},defltenr=[];
+defined={"lte":false,"nr":false,"nrrssi":false,"nrcqi0":false,"scc_pci":false,"enodeb_id":false},defnot={"nrrssi":false,"nrcqi0":false,"scc_pci":false},defltenr=[];
 enbmainchange={"lte":false,"nr":false},enbmainold={"lte":"","nr":""},celchange={"lte":false,"nr":false};
-selsign={"lte":"ltesign","nr":"nrsign"},selsignnot={"lte":"ltecqi0","nr":"nrcqi0"};/*assign 1st select/notSel*/
-neistatus=0;/*status neighborCell 0off1min2max*/
 mainband=null,_2ndrun=null,suspend=false,itime=2000,state="",link="";
 /*chart window width,height,line width*/
 wch=500,hch=40,lch=4;boxch=parseInt(wch/lch),lmch=parseInt(lch/2);
@@ -884,7 +883,7 @@ var bts_location={/*
 "0363379":["2:Balanzano 4,6km"                  ,""],
 };
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=setInterval(currentData,itime);
-info="Huawei router Hack - Base code v5.0 by miononno.it, Advanced v1.6.1 by Riccardo Fanelli.\nTested with Huawei B818 and B636 4G router and Firefox, Edge, Chrome browsers.";
+info="Huawei router Hack - Base code v5.0 by miononno.it, Advanced v1.6.2 by Riccardo Fanelli.\nTested with Huawei B818 and B636 4G router and Firefox, Edge, Chrome browsers.";
 tit("Che la banda sia con te! Hack by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit,4000);msg(info+"\nType: netmode, signal, status, antennatype");
 /*for URLformat "#"in"%23"*/
 ```
