@@ -17,7 +17,7 @@
 
 ### Info
 - Tested with **Huawei B818 and B636 4G router** and Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it, Advanced **v1.6.2** by Riccardo Fanelli.
+- Base code v5.0 by miononno.it, Advanced **v1.6.3** by Riccardo Fanelli.
 
 ---
 
@@ -36,7 +36,7 @@
 
 ### Info
 - Testato con **Huawei B818 e B636 4G** e browser **Firefox, Edge, Chrome**.
-- Codice base v5.0 di miononno.it, Evoluzione **v1.6.2** di Riccardo Fanelli.
+- Codice base v5.0 di miononno.it, Evoluzione **v1.6.3** di Riccardo Fanelli.
 
 ---
 
@@ -554,6 +554,7 @@ function clickInfo()
 {
     alert("--- Definitions ---\nRSSI: Total signal strength of the useful signal+interference from signals from other cells+noise from other sources.\n\nRSRP: Useful signal strength of the cell to which you are connected.\n\nRSRQ: Implicit signal quality from the RSRP/RSSI ratio, which indicates the prevalence of the useful signal over the others.\n\nSINR: Explicit signal quality evaluation from the ratio of the useful signal strength to interference+noise strengths.\n\nCQI / Signal: Conventional signal quality evaluation calculated by the modem and sent to the BTS which, by adjusting the signal modulation, balances data transmission speed and connection reliability. / Signal quality evaluation calculated by balancing the underlying parameters.\n\nBandwidth: bandwidth used to transmit a maximum amount of data in one second.\n\nEARFCN: Conventional identification number used to identify the uplink or downlink frequency band (no real frequancy).\n\nCell Id / PCI: Identification number of a radio signal at a specific frequency or band transmitted and received by an BTS antenna / Short id. num. of a cell in a limited area.\n\nBTS / ENB Id: Base tower station / Id. num. of 2nd evolved node of a BTS.");
     alert("--- Parameters ---\n--- \"Signal\" QUALITY BALANCED (set in Hack script)\nsignal_balance_rssi="+signal_balance_rssi+"%\nsignal_balance_rsrp="+signal_balance_rsrp+"%\nsignal_balance_rsrq="+signal_balance_rsrq+"%\nsignal_balance_sinr="+signal_balance_sinr+"%\n\n--- SIGNAL VALUE LIMITS (set in Hack script)\nmax_rssi="+max_rssi+"dBm\tmin_rssi="+min_rssi+"dBm\nmax_rsrp="+max_rsrp+"dBm\tmin_rsrp="+min_rsrp+"dBm\nmax_rsrq="+max_rsrq+"dB\tmin_rsrq="+min_rsrq+"dB\nmax_sinr="+max_sinr+"dB\tmin_sinr="+min_sinr+"dB\n\n--- EARFCN (add & change in Hack script)\n(list)\n\n--- EARFCN GEOGRAPHICAL AREA (set in Hack script)\ngeo_area="+geo_area+"\n\n--- BTS LOCATIONS (add & change in Hack script)\n(permanent list)\n\n--- Other info ---\nSignal, band and cell parameters if not specified are LTE.\nWith 4G+5G modem, external antenna are 5G.\nThe Hack script processes the parameters made available by the router API.\n"+info);
+    if(defined["nr"])alert("If you have a 5G router and would like to help me improve the script, please send me your router's API data at fanoso@alice.it. To access the API, open and access the router's local URL (e.g., https://192.168.8.1) and, in another browser page, type https://192.168.8.1/api/device/signal. Please also send me the router model, year of purchase, and the software version in use. The value is only technical, not sensitive. Thank you.");
 }
 function clickStorage(tipo,b)
 {
@@ -561,7 +562,7 @@ function clickStorage(tipo,b)
     if(tipo=="rec")
     {
         wwi=1700;savq=["Input new record info (optional)."],savl=[35];
-        h0="*PCI(number detections).<br>";h1="Records:",h2="For analysis of recordings, select table, copy and paste it into an Excel sheet or 'Export' in .txt format.";
+        h0="*PCI(number detections).<br>",h1="Records:",h2="For analysis of recordings, select table, copy and paste it into an Excel sheet or 'Export' in .txt format.";
         re1=[["","Date and Time","Info","Network","Antennas","ENB Id","Band","Count-Time","RSRP","","","SINR","","","RSRQ","","","RSSI","Signal","","","CQI","","","Neighbor PCI"],["","","","",(defined["nr"]&&defined["lte"]?"5G":""),"","","","Med","Max","Min","Med","Max","Min","Med","Max","Min","Med","Med","Max","Min","Med","Max","Min","1st(N)-2nd(N)-3rd(N)-4th(N)*"]];
         re2=[];
         re3=JSON.parse(localStorage.getItem(sn));
@@ -569,21 +570,22 @@ function clickStorage(tipo,b)
     if(tipo=="bts")
     {
         wwi=900;savq=["Input new BTS location name (optional).\nThe BTS location name and available bands can also be permanently inserted directly into the Hack script.\nSearch for information about BTS locations on websites (ex. cellmapper.net or lteitaly.it).","Input availables BTS bands (optional)."],savl=[35,35];
-        h0="*Douplicate.<br>";h1="Locations:",h2="The values may be subject to change by the network operator.<br>To permanently save locations, add them manually to the bottom of the Hack script (grey in table).";
+        h0="*Douplicate.<br>",h1="Locations:",h2="The values may be subject to change by the network operator.<br>For a permanent inclusion of the location (grey in table), add them manually to the bottom of the Hack script.";
         re1=[["ENB Id","BTS location name","Availables bands"]];
         re2=JSON.parse(JSON.stringify(bts_location));
         re3=JSON.parse(localStorage.getItem(sn));
     }
     if(tipo=="cel")
     {
-        wwi=1100;h0="*Douplicate. **Changes:1 PCI, 2 Band, 3 Bandwidth, 4 EARFCN, 5 ENB. ***Add of NumberUsed and calc of average Signal/NumUse take place at the moment of connection to the cell.<br>";h1="Cells:",h2="The update and saving are automatic when connecting in the second interval to the cell as main band.<br>The values may be subject to change by the network operator and The 'PCI' number may be duplicated and not correctly identifiable in neighboring cells.<br>'Cell Id' not available for NR in modem API, the alternative value may not be unique and may not work properly.<br>You can use 'PCI' and 'EARFCN download' parameters to set the use of bands and specific cells (if available) in '192.168.8.1/->...->System Settings->Developer options->Band selection->...'.";
-        re1=[["Cell Id","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Add/Change**","Last use","NumUse-MedSig***"]];
+        wwi=1100;h0="*Douplicate. **Changes:1 PCI, 2 Band, 3 Bandwidth, 4 EARFCN, 5 ENB. ***'Signal' average is counted at the time of connection and for the number of connections.<br>",h1="Cells:",h2="The update and saving are automatic when connecting in the second interval to the cell as main band.<br>The values may be subject to change by the network operator and The 'PCI' number may be duplicated and not correctly identifiable in 'Neighboring PCI'.<br>'Cell Id' not available for NR in modem API, the alternative value may not be unique and may not work properly.<br>You can use 'PCI' and 'EARFCN download' parameters to set the use of bands and specific cells (if available) in '192.168.8.1/->...->System Settings->Developer options->Band selection->...'.<br>To get good speed performance, it is important to connect to a band that works with high bandwidth and good signal quality.";
+        re1=[["Cell Id","PCI","Band","Bandwidth dl","EARFCN dl","ENB Id","Location","Add/Change**","Last use","Connections-Signal***"],["","","","","","","","","","Num-Med"]];
         re2=[];
         re3=JSON.parse(localStorage.getItem(sn));re3s=JSON.parse(JSON.stringify(re3));
         for(const[a]of Object.entries(re3))
         {
             if(re3[a][4] in bts)re3[a].splice(5,0,bts[re3[a][4]][0]);
             else{re3[a].splice(5,0,"<button onclick='window.opener.clickStorage(\"bts\",\""+re3[a][4]+"\")'>Add Location</button>");re3[a][4]="<a target='_blank'href='"+link+re3[a][4].replace(/^0+/,"")+"'>"+re3[a][4]+"</a>"}
+            v=re3[a][8].split("-");v1=parseFloat(v[1]);re3[a][8]="<div style='text-align:right;float:left;width:53%'>"+v[0]+"-</div><div style='text-align:left;float:left;width:47%;color:rgb("+5*Math.round(v1<50?50:100-v1)+","+5*Math.round(v1>50?50:v1)+",0)'>"+v1+"</div>";
         }
         for(const[a]of Object.entries(re3))for(const[aa]of Object.entries(re3))if(re3[aa][0]==re3[a][0].replace("*","")&&a!=aa)re3[aa][0]+="*";
     }
@@ -616,7 +618,7 @@ function clickStorage(tipo,b)
         r="";re1.forEach(c=>r+=c+"\n");b=new Blob([(r+"\n- In script -\n"+JSON.stringify(re2)+"\n\n- In local storage -\n"+JSON.stringify(re3)).replaceAll("],","],\n")],{type:"text/plain"});
         l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=sn+".txt";l.click();
     };
-    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}table{text-align:center;border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>"+h0+"<b>Saves made to the browser's local storage, are browser-dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
+    w.document.write("<!DOCTYPE html><html><style>body{font-family:Arial;font-size:.9em}table{text-align:center;border:2px solid black}</style><body>"+h1+"<br><span id='tb'></span>"+h0+"<b>Saves made to the browser's local storage, are browser and address dependent and can be deleted by system cleaning programs.</b><br>"+h2+"<br><button onclick='savtxt()'>Export</button> table in .txt format.</body></html>");
     tab();
     if(b)setTimeout(function()
     {
@@ -851,8 +853,8 @@ balance_rsrq=qq/totq;balance_sinr=qr/totq;
 earfcn=[];/*
 earfcn["geo area"]={"lte or nr":{"band":[earfcn dl min,earfcn dl max,earfcn ul min,earfcn ul max],...};...*/
 earfcn["eur"]={
-"lte":{"1":  [0,599,18000,18300]          ,"3":  [1200,1949,19200,19949]      ,"7":  [2750,3449,20750,21449]      ,"20": [6150,6449,24150,24449]     
-      ,"28": [9210,9659,27210,27659]      ,"32": [9920,10359,,]},
+"lte":{"1":  [0,599,18000,18300]          ,"3":  [1200,1949,19200,19949]      ,"7":  [2750,3449,20750,21449]      ,"8":  [3450,3799,21450,21799]
+      ,"20": [6150,6449,24150,24449]      ,"28": [9210,9659,27210,27659]      ,"32": [9920,10359,,]},
 "nr": {"1":  [422000,434000,384000,396000],"3":  [361000,376000,342000,357000],"7":  [524000,538000,500000,514000],"8":  [185000,192000,176000,183000]
       ,"20": [158200,164200,166400,172400],"28": [151600,160600,140600,149600],"38": [514000,524000,514000,524000],"78": [620000,653333,620000,653333]
       ,"258":[2016667,2070832,,]},
@@ -883,7 +885,7 @@ var bts_location={/*
 "0363379":["2:Balanzano 4,6km"                  ,""],
 };
 status="",netmode="",signal="",antennatype="",start(),currentData(),interval=setInterval(currentData,itime);
-info="Huawei router Hack - Base code v5.0 by miononno.it, Advanced v1.6.2 by Riccardo Fanelli.\nTested with Huawei B818 and B636 4G router and Firefox, Edge, Chrome browsers.";
-tit("Che la banda sia con te! Hack by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit,4000);msg(info+"\nType: netmode, signal, status, antennatype");
+tit("Che la banda sia con te! Hack by Miononno&%239829; & Riccardo Fanelli"),setTimeout(tit,4000);
+info="Huawei router Hack - Base code v5.0 by miononno.it, Advanced v1.6.3 by Riccardo Fanelli.\nTested with Huawei B818 and B636 4G router and Firefox, Edge, Chrome browsers.",msg(info+"\nType: netmode, signal, status, antennatype");
 /*for URLformat "#"in"%23"*/
 ```
