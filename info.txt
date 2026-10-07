@@ -5,35 +5,35 @@
 ## English
 
 ### What is Huawei router Hack?
-- Huawei Router Hack is a JavaScript code that monitors and records the main radio parameters of the LTE (4G) and NR (5G) networks received by the modem, to improve reception and therefore performance.
-- With Huawei Router Hack you can find out which bands are available in your area and find the best position for your modem or antennas to pick up the signal.
+- Huawei Router Hack is a JavaScript code that allows you to monitor and log radio reception data for LTE (4G) and NR (5G) networks.
+- With Huawei Router Hack, you can identify the best radio bands available in your area and determine the optimal placement for your modem/router or find the best orientation for any external antennas to capture those signals.
 
 ### Installation and startup
 1. Create or add a new browser Favorites or Bookmarks and name it 'Hack'.
 2. Select the JavaScript code in the 'Huawei router Hack.js' or 'README.md' file, copy and paste it into the Bookmark URL box, save if necessary.
 3. In a browser page, open the router's local URL (ex. 'http://192.168.8.1') and log in.
-4. From the router page opened in the browser, load 'Hack' from Bookmarks.
+4. In the router page opened in the browser, load (ex. double-click) 'Hack' from Bookmarks.
 - For further start, repeat steps 3 and 4.
 
 ### Info
-- Tested with **Huawei B818 and B636 4G router** and Firefox, Edge, Chrome browsers. 
-- Base code v5.0 by miononno.it, Advanced **v1.7.0** by Riccardo Fanelli.
+- Tested with **Huawei B818 and B636 4G** router and **Firefox, Edge, Chrome** browsers. 
+- Base code v5.0 by miononno.it, Advanced **v2.0.0** by Riccardo Fanelli.
 
 ---
 
 ## Italiano
 
 ### Cos'è Huawei router Hack?
-- Huawei router Hack è uno codice JavaScript che monitora e registra i principali parametri radio delle reti LTE(4G) e NR(5G) captate dal modem, per migliorare la ricezione e quindi le prestazioni.
-- Con Huawei router Hack puoi conoscere quali sono le bande disponibili in zona e trovare la miglior posizione del modem o delle antenne per captare il segnale.
+- Huawei router Hack è uno codice JavaScript che permette di monitorare e registrare i dati di ricezione radio delle reti LTE(4G) e NR(5G).
+- Con Huawei router Hack puoi conoscere quali sono le migliori bande radio disponibili nella tua zona e trovare la miglior posizione del modem/router oppure trovare il miglior orientamento delle eventuali antenne esterne per captarle.
 
 ### Installazione e avvio
 1. Creare o aggiungere un nuovo Segnalibro o Preferito al browser e nominarlo 'Hack'.
 2. Selezionare il codice JavaScript nel file 'Huawei router Hack.js' o "README.md', copiarlo e incollarlo nel riquadro URL del Segnalibro, salvare se necessario.
 3. In una pagina del browser, aprire l'URL locale del router (es. 'http://192.168.8.1') e accedere.
-4. Dalla pagina del router aperta nel browser, caricare 'Hack' dai Segnalibri.
+4. Nella pagina del router aperta nel browser, caricare (es. doppio click) 'Hack' dai Segnalibri.
 - Nei successivi avii, ripetere passaggi 3 e 4.
 
 ### Info
-- Testato con **Huawei B818 e B636 4G** e browser **Firefox, Edge, Chrome**.
-- Codice base v5.0 di miononno.it, Evoluzione **v1.7.0** di Riccardo Fanelli.
+- Testato con **Huawei B818 e B636 4G** router e browser **Firefox, Edge, Chrome**.
+- Codice base v5.0 di miononno.it, Evoluzione **v2.0.0** di Riccardo Fanelli.
